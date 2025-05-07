@@ -27,13 +27,22 @@ else:
 
 st.divider()
 
+# 初始化
+if 'dice_rolled' not in st.session_state:
+    st.session_state['dice_rolled'] = False
+if 'add_to_fav' not in st.session_state:
+    st.session_state['add_to_fav'] = False
+
 if option == "Random generator":
     st.subheader("Random generator")
     
-    if st.button('Roll the dice! '):
-        st.write('\# 執行基本的隨機function')
-
+    # 🎲 點擊按鈕後，記住狀態
+    if st.button('Roll the dice!'):
+        st.session_state['dice_rolled'] = True
     
+    if st.session_state['dice_rolled']:
+        st.write('\# 執行基本的隨機function') # 這只是檢察功能暫放的東西
+
         # 連接好方程式之後要再改版這個區塊
 
         st.markdown(f"""
@@ -45,6 +54,11 @@ if option == "Random generator":
         # ------
        
         # 這裡要再加 Badge
+        st.markdown(
+        ":green-badge[:material/check: Success]"
+        )
+        #:orange-badge[⚠️ Needs review] :gray-badge[Deprecated]"
+        
         
         col_price, col_calories = st.columns(2)
         with col_price:
@@ -64,9 +78,14 @@ if option == "Random generator":
             """, unsafe_allow_html=True
             )
 
-        on = st.toggle('Add to favorite?')
-        if on:
-            st.markdown('')
+        st.session_state['add_to_fav'] = st.toggle('Add to favorite?', key="toggle_fav")
+        if st.session_state['add_to_fav']:
+            st.success("🌟 已加入最愛！")
+
+    # 如果按下reset 把'dice_rolled'和'add_to_fav'的session.state重置
+    if st.button("🔄 Reset"):
+        st.session_state['dice_rolled'] = False
+        st.session_state['add_to_fav'] = False
 
 
         
