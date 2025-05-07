@@ -87,7 +87,7 @@ if option == "Random generator":
         st.session_state['dice_rolled'] = False
         st.session_state['add_to_fav'] = False
 
-
+#
         
 
 
