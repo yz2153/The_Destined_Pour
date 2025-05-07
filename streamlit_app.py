@@ -12,6 +12,7 @@ option = st.selectbox(
     label_visibility="collapsed"
 )
 
+st.write(":ideograph_advantage:")
 
 if option != None:
     st.markdown(f"""
