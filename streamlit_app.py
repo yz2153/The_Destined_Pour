@@ -3,8 +3,6 @@
 # import random
 # from itertools import combinations
 import streamlit as st
-
-
  
 # 設定頁面的標題與副標題(模式選擇)
 st.title(":cup_with_straw: The Destined Pour")
@@ -18,12 +16,16 @@ if 'price_customized' not in st.session_state:
 if 'ingredient_customized' not in st.session_state:
     st.session_state['ingredient_customized'] = 'NO'
 
-# 重置budget相關的st.session_state
+# 重置calories相關的st.session_state (slider/type)
 if "calories_value" not in st.session_state:
     st.session_state["calories_value"] = 350
-
+# 重置budget相關的st.session_state (slider/type)
 if "budget_value" not in st.session_state:
     st.session_state["budget_value"] = 50
+
+# 重置關於口味與配料的st.session_state
+if 'selected_topping' not in st.session_state:
+    st.session_state.selected_topping = []
 
 # 重置用來放模式選擇結果的list
 mode_badge_list = []
@@ -190,9 +192,40 @@ if option_price != 'NO':
 # --- option_price 的區塊 ---
 
 # --- option_ingredient 的區塊 ---
+def update_topping_selection():
+    st.session_state.selected_topping = st.session_state.temp_topping_selection
 
 
+if option_ingredient != 'NO':
+    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)
+    
+    # topping
+    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
 
+    topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
+    selected_topping = st.pills(
+        "", 
+        topping, 
+        selection_mode="multi",
+        key="temp_topping_selection",
+        label_visibility = 'collapsed',
+        )
+    
+    selected_topping_display = ""
+    if len(selected_topping) >= 1:
+        for i in range((len(selected_topping)-1)):
+            selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
+        selected_topping_display = selected_topping_display + str(selected_topping[-1])
+    else:
+        selected_topping_display = ""
+    
+    st.markdown("Your selected topping: " + selected_topping_display + ".")
+    
+
+# Choose the taste of the drink you prefer
+
+if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
+        update_topping_selection()
 
 # --- option_ingredient 的區塊 ---
 
