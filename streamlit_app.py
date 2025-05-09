@@ -1,7 +1,7 @@
-import numpy as np
-import pandas as pd
-import random
-from itertools import combinations
+# import numpy as np
+# import pandas as pd
+# import random
+# from itertools import combinations
 import streamlit as st
 
 
@@ -19,8 +19,8 @@ if 'ingredient_customized' not in st.session_state:
     st.session_state['ingredient_customized'] = 'NO'
 
 # 重置budget相關的st.session_state
-if "budget_value" not in st.session_state:
-    st.session_state["budget_value"] = 50
+if "calories_value" not in st.session_state:
+    st.session_state["calories_value"] = 350
 
 if "budget_value" not in st.session_state:
     st.session_state["budget_value"] = 50
@@ -96,20 +96,52 @@ if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO
 else: 
     st.markdown("✔️ You selected: " + badge_calories + badge_price + badge_ingredient)
     
+
 # ---
 st.divider()
 # ---
 
 # --- option_calories 的區塊 ---
-def update_from_slider():
+def update_from_calories_slider():
     st.session_state["calories_value"] = st.session_state["calories_slider_value"]
 
-def update_from_number():
+def update_from_calories_number():
     st.session_state["calories_value"] = st.session_state["calories_number_value"]
 
 
 if option_calories != 'NO':
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Setting Target Calories for Your Drink</p>", unsafe_allow_html=True)
+    
+    col_calories_slider, col_calories_numberinput = st.columns([6, 1])
+
+    with col_calories_slider:
+        st.slider(
+            "",
+            min_value=0,
+            max_value=1000,
+            key="calories_slider_value",
+            value=st.session_state["calories_value"],
+            on_change=update_from_calories_slider,
+            label_visibility = 'collapsed', 
+        )
+
+    with col_calories_numberinput:
+        st.number_input(
+            "",
+            min_value=0,
+            max_value=1000,
+            key="calories_number_value",
+            value=st.session_state["calories_value"],
+            on_change=update_from_calories_number,
+            label_visibility = 'collapsed',
+        )
+
+    calories_text = st.session_state["calories_value"]
+    st.markdown(f"""
+    Your target calorie count for your drink is <span style='color: SlateBlue; font-weight: bold;'>{calories_text}</span> calories.
+    """, unsafe_allow_html=True)
+
+    st.divider()
 
 # --- option_calories 的區塊 ---
 
@@ -123,26 +155,27 @@ def update_from_price_number():
 
 if option_price != 'NO':
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Setting Your Budget</p>", unsafe_allow_html=True)
-    col_slider, col_numberinput = st.columns([6, 1])
+    
+    col_price_slider, col_price_numberinput = st.columns([6, 1])
 
     
-    with col_slider:
+    with col_price_slider:
         st.slider(
             "",
             min_value=0,
             max_value=1000,
-            key="slider_value",
+            key="price_slider_value",
             value=st.session_state["budget_value"],
             on_change=update_from_price_slider,
             label_visibility = 'collapsed', 
         )
 
-    with col_numberinput:
+    with col_price_numberinput:
         st.number_input(
             "",
             min_value=0,
             max_value=1000,
-            key="number_value",
+            key="price_number_value",
             value=st.session_state["budget_value"],
             on_change=update_from_price_number,
             label_visibility = 'collapsed',
@@ -155,6 +188,14 @@ if option_price != 'NO':
 
     st.divider()
 # --- option_price 的區塊 ---
+
+# --- option_ingredient 的區塊 ---
+
+
+
+
+# --- option_ingredient 的區塊 ---
+
 
 
 
