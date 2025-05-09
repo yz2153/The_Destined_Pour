@@ -3,6 +3,73 @@ import streamlit as st
 st.title(":cup_with_straw: The Destined Pour")
 st.header("Select the generator mode you want!")
 
+if 'calories_customized' not in st.session_state:
+    st.session_state['calories_customized'] = 'NO'
+if 'price_customized' not in st.session_state:
+    st.session_state['price_customized'] = 'NO'
+if 'ingredient_customized' not in st.session_state:
+    st.session_state['ingredient_customized'] = 'NO'
+
+
+def calories_on_change():
+    st.session_state['calories_customized'] = st.session_state["calories_temp"]
+
+# st.markdown("<p style='font-size:16px; color:Black; font-weight:bold;'>1. Do you want to customize the “calories” of your drinks?</p>", unsafe_allow_html=True)
+option_calories = st.radio(
+    ":one: Do you want to customize the “calories” of your drinks?",
+    [":rainbow[YES]", "NO",],
+    key="calories_temp",
+    index=1,
+    on_change=calories_on_change,
+    horizontal=True,
+)
+# if option_calories == ':rainbow[YES]':
+
+
+def price_on_change():
+    st.session_state['price_customized'] = st.session_state["price_temp"]
+
+option_price = st.radio(
+    ":two: Do you want to customize the “price” of your drinks?",
+    [":rainbow[YES]", "NO",], 
+    key="price_temp",   
+    index=1,
+    on_change=price_on_change,
+    horizontal=True,
+)
+
+
+
+option_ingredient = st.radio(
+    ":three: Do you want to customize the “ingredient” of your drinks?",
+    [":rainbow[YES]", "NO",],    
+    index=1,
+    horizontal=True,
+)
+
+
+if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO':
+    st.markdown(f"""
+    <div style='font-size:18px; font-weight:bold;'>
+    ✔️ You selected: Random generator </div>""",
+    unsafe_allow_html=True)
+
+else: # 還沒改好 要可以適應上面的選項
+    st.markdown(f"""
+    <div style='font-size:18px; font-weight:bold;'>
+    ✔️ You selected: ? </div>""",
+    unsafe_allow_html=True)
+
+
+st.divider()
+
+if option_calories == ':rainbow[YES]':
+    budget = st.slider(
+    "Schedule your appointment:", 1,1000,50)
+    st.write("You're scheduled for:", budget)
+
+
+#下方皆為舊版code
 st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Which mode would you like to try?</p>", unsafe_allow_html=True)
 option = st.selectbox(
     "",
@@ -12,7 +79,7 @@ option = st.selectbox(
     label_visibility="collapsed"
 )
 
-st.write(":ideograph_advantage:")
+
 
 if option != None:
     st.markdown(f"""
@@ -108,3 +175,4 @@ elif option == "Ingredient":
 
 else:
    st.empty()
+
