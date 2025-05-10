@@ -1,7 +1,7 @@
 # import numpy as np
 # import pandas as pd
 # import random
-# from itertools import combinations
+from itertools import combinations
 import streamlit as st
  
 # 設定頁面的標題與副標題(模式選擇)
@@ -144,7 +144,6 @@ if option_calories != 'NO':
     """, unsafe_allow_html=True)
 
     st.divider()
-
 # --- option_calories 的區塊 ---
 
 # --- option_price 的區塊 ---
@@ -192,14 +191,16 @@ if option_price != 'NO':
 # --- option_price 的區塊 ---
 
 # --- option_ingredient 的區塊 ---
-def update_topping_selection():
+def update_topping_selection(): # 設定更新topping的session_state
     st.session_state.selected_topping = st.session_state.temp_topping_selection
+def update_taste_selection(): # 設定更新taste的session_state
+    st.session_state.selected_taste = st.session_state.temp_taste_selection
 
 
 if option_ingredient != 'NO':
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)
     
-    # topping
+    # 加料 topping
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
 
     topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
@@ -220,9 +221,34 @@ if option_ingredient != 'NO':
         selected_topping_display = ""
     
     st.markdown("Your selected topping: " + selected_topping_display + ".")
-    
 
-# Choose the taste of the drink you prefer
+    # 風味 taste
+    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the taste of the drink you prefer</p>", unsafe_allow_html=True)
+
+    taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "柚子 Yuzu/Pomelo", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
+    selected_taste = st.pills(
+        "", 
+        topping, 
+        selection_mode="multi",
+        key="temp_taste_selection",
+        label_visibility = 'collapsed',
+        )
+    
+    selected_topping_display = ""
+    if len(selected_topping) >= 1:
+        for i in range((len(selected_topping)-1)):
+            selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
+        selected_topping_display = selected_topping_display + str(selected_topping[-1])
+    else:
+        selected_topping_display = ""
+    
+    st.markdown("Your selected topping: " + selected_topping_display + ".")
+
+
+
+
+
+
 
 if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
         update_topping_selection()
@@ -341,4 +367,6 @@ elif option == "Ingredient":
 
 else:
    st.empty()
+
+
 
