@@ -1,6 +1,6 @@
 # import numpy as np
 # import pandas as pd
-# import random
+import random
 from itertools import combinations
 import streamlit as st
  
@@ -196,12 +196,17 @@ def update_topping_selection(): # 設定更新topping的session_state
 def update_taste_selection(): # 設定更新taste的session_state
     st.session_state.selected_taste = st.session_state.temp_taste_selection
 
+if option_ingredient != 'NO':
+    st.seg
+
+
 
 if option_ingredient != 'NO':
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)
     
     # 加料 topping
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:12px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
 
     topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
     selected_topping = st.pills(
@@ -225,29 +230,48 @@ if option_ingredient != 'NO':
     # 風味 taste
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the taste of the drink you prefer</p>", unsafe_allow_html=True)
 
-    taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "柚子 Yuzu/Pomelo", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
+    taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
     selected_taste = st.pills(
         "", 
-        topping, 
+        taste, 
         selection_mode="multi",
         key="temp_taste_selection",
         label_visibility = 'collapsed',
         )
     
-    selected_topping_display = ""
-    if len(selected_topping) >= 1:
-        for i in range((len(selected_topping)-1)):
-            selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
-        selected_topping_display = selected_topping_display + str(selected_topping[-1])
+    # display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
+    random_taste = ""
+    selected_taste_display = ""
+
+    if len(selected_taste) >= 1:
+        random_taste = random.choice(selected_taste) # 從使用者選擇的一或多個項目中選出一個
+        
+        for i in range((len(selected_taste)-1)): # 設定顯示在頁面上的選項
+            selected_taste_display = selected_taste_display + str(selected_taste[i]) + ', '
+        selected_taste_display = selected_taste_display + str(selected_taste[-1])
+        
+        st.markdown("Your selected taste: " + selected_taste_display + ".")
     else:
-        selected_topping_display = ""
-    
-    st.markdown("Your selected topping: " + selected_topping_display + ".")
+        random_taste = ""
+        selected_taste_display = ""
+        st.markdown("You'll get random taste of drinks!")
+
+# 我們將會從你的選擇中隨機選取1-x個(toppings) (x = 使用者的選擇數目 <=5 )
+# We will randomly select 1-x (toppings) from your selection.
+
+# 
+
+# [取消客製化topping] -> 可以做成 st.segmented_control
+# I want to randomly generate toppings for drink combinations ( Cancel customization )
+
+# [重新開啟客製化topping] -> 可以做成 st.segmented_control
+# I still want to customize my drink topping. (Re-opening Customization)
 
 
+# 
 
 
-
+# 🎲 ✅ ✔️ ⚠️ 💸 🔥 🌟 🔄
 
 
 if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
@@ -258,33 +282,9 @@ if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化�
 
 
 
-#---下方皆為舊版code---
-#---下方皆為舊版code---
-#---下方皆為舊版code---
-st.divider()
-st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Which mode would you like to try?</p>", unsafe_allow_html=True)
-option = st.selectbox(
-    "",
-    ("Random generator", "Calories", "Price", "Ingredient"),
-    index=None, 
-    placeholder=" Select generator method... ", 
-    label_visibility="collapsed"
-)
-
-
-
-if option != None:
-    st.markdown(f"""
-    <div style='font-size:18px; font-weight:bold;'>
-    ✔️ You selected: {option} </div>""",
-    unsafe_allow_html=True)
-
-else:
-    st.markdown(f"""
-    <div style='font-size:18px; font-weight:bold;'>
-    You should select the generator mode 🎲
-    </div>""", unsafe_allow_html=True)
-
+#---下方皆為舊版code 尚待改版---
+#---下方皆為舊版code 尚待改版---
+#---下方皆為舊版code 尚待改版---
 st.divider()
 
 # 初始化
@@ -293,7 +293,6 @@ if 'dice_rolled' not in st.session_state:
 if 'add_to_fav' not in st.session_state:
     st.session_state['add_to_fav'] = False
 
-if option == "Random generator":
     st.subheader("Random generator")
     
     # 🎲 點擊按鈕後，記住狀態
@@ -351,18 +350,18 @@ if option == "Random generator":
         
 
 
-elif option == "Calories":
-    st.subheader("Calories")
+# elif option == "Calories":
+    # st.subheader("Calories")
 
 
 
-elif option == "Price":
-    st.subheader("Price")
+# elif option == "Price":
+    # st.subheader("Price")
 
 
 
-elif option == "Ingredient":
-    st.subheader("Ingredient")
+# elif option == "Ingredient":
+    # st.subheader("Ingredient")
 
 
 else:
