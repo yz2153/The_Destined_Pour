@@ -18,14 +18,22 @@ if 'ingredient_customized' not in st.session_state:
 
 # 重置calories相關的st.session_state (slider/type)
 if "calories_value" not in st.session_state:
-    st.session_state["calories_value"] = 350
+    st.session_state['calories_value'] = 350
 # 重置budget相關的st.session_state (slider/type)
 if "budget_value" not in st.session_state:
-    st.session_state["budget_value"] = 50
+    st.session_state['budget_value'] = 50
 
 # 重置關於口味與配料的st.session_state
+if 'selected_type' not in st.session_state: # 重置segmented_control
+    st.session_state['selected_type'] = ["Topping", "Taste", "Texture"]
+if 'add_topping' not in st.session_atate:
+    st.session_state['add_topping'] = True
 if 'selected_topping' not in st.session_state:
-    st.session_state.selected_topping = []
+    st.session_state['selected_topping'] = []
+if 'selected_taste' not in st.session_state:
+    st.session_state['selected_taste'] = []   
+if 'selected_testure' not in st.session_state: # 這個的選擇還沒有完成
+    st.session_state['selected_testure'] = [] 
 
 # 重置用來放模式選擇結果的list
 mode_badge_list = []
@@ -106,7 +114,6 @@ st.divider()
 # --- option_calories 的區塊 ---
 def update_from_calories_slider():
     st.session_state["calories_value"] = st.session_state["calories_slider_value"]
-
 def update_from_calories_number():
     st.session_state["calories_value"] = st.session_state["calories_number_value"]
 
@@ -124,7 +131,7 @@ if option_calories != 'NO':
             key="calories_slider_value",
             value=st.session_state["calories_value"],
             on_change=update_from_calories_slider,
-            label_visibility = 'collapsed', 
+            label_visibility = "collapsed", 
         )
 
     with col_calories_numberinput:
@@ -135,7 +142,7 @@ if option_calories != 'NO':
             key="calories_number_value",
             value=st.session_state["calories_value"],
             on_change=update_from_calories_number,
-            label_visibility = 'collapsed',
+            label_visibility = "collapsed",
         )
 
     calories_text = st.session_state["calories_value"]
@@ -168,7 +175,7 @@ if option_price != 'NO':
             key="price_slider_value",
             value=st.session_state["budget_value"],
             on_change=update_from_price_slider,
-            label_visibility = 'collapsed', 
+            label_visibility = "collapsed", 
         )
 
     with col_price_numberinput:
@@ -179,7 +186,7 @@ if option_price != 'NO':
             key="price_number_value",
             value=st.session_state["budget_value"],
             on_change=update_from_price_number,
-            label_visibility = 'collapsed',
+            label_visibility = "collapsed",
         )
 
     budget_text = st.session_state["budget_value"]
@@ -191,22 +198,46 @@ if option_price != 'NO':
 # --- option_price 的區塊 ---
 
 # --- option_ingredient 的區塊 ---
+def update_customization_selection(): # 設定更新selected_type的ession_state
+    st.session_state.selected_type = st.session_state.customized_selection
+def update_whether_to_add_topping():
+    st.session_state.whether_to_add_topping = st.session_state.add_topping
 def update_topping_selection(): # 設定更新topping的session_state
     st.session_state.selected_topping = st.session_state.temp_topping_selection
 def update_taste_selection(): # 設定更新taste的session_state
     st.session_state.selected_taste = st.session_state.temp_taste_selection
+def update_texture_selection(): # 設定更新texture的session_state
+    st.session_state.selected_texture = st.session_state.temp_texture_selection
 
 if option_ingredient != 'NO':
-    st.seg
+    # 區域大標題
+    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)    
+    # 標題
+    st.markdown("<p style='font-size:16px; color:DarkMagenta; font-weight:bold;'>Select the type you want to customize~</p>", unsafe_allow_html=True)
+   
+   # 設定 選擇客製化ingredients的segmented_control
+    type_customization = ["Topping", "Taste", "Texture"]
+    selected_type = st.segmented_control(
+        "",
+        type_customization,
+        selection_mode="multi",
+        key="customized_selection",
+        on_change=update_customization_selection,
+        label_visibility = "collapsed",
+    )
 
 
-
-if option_ingredient != 'NO':
-    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)
-    
-    # 加料 topping
+# 加料 Topping
+if option_ingredient != 'NO' and "Topping" in selected_type:
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
-    st.markdown("<p style='font-size:12px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
+    
+    st.markdown("<p style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select whether you want to add topping to your drink or not.</p>", unsafe_allow_html=True)
+    whether_to_add_topping = st.toggle(
+        "",
+        key="add_topping",
+        on_change=update_whether_to_add_topping,
+        label_visibility="collapsed",
+    )
 
     topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
     selected_topping = st.pills(
@@ -214,7 +245,7 @@ if option_ingredient != 'NO':
         topping, 
         selection_mode="multi",
         key="temp_topping_selection",
-        label_visibility = 'collapsed',
+        label_visibility = "collapsed",
         )
     
     selected_topping_display = ""
@@ -227,7 +258,8 @@ if option_ingredient != 'NO':
     
     st.markdown("Your selected topping: " + selected_topping_display + ".")
 
-    # 風味 taste
+# 風味 taste
+if option_ingredient != 'NO' and "Taste" in selected_type:
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the taste of the drink you prefer</p>", unsafe_allow_html=True)
 
     taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
@@ -236,7 +268,7 @@ if option_ingredient != 'NO':
         taste, 
         selection_mode="multi",
         key="temp_taste_selection",
-        label_visibility = 'collapsed',
+        label_visibility = "collapsed",
         )
     
     # display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
@@ -256,26 +288,47 @@ if option_ingredient != 'NO':
         selected_taste_display = ""
         st.markdown("You'll get random taste of drinks!")
 
+# 口感 Texture
+if option_ingredient != 'NO' and "Texture" in selected_type:
+    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the texture of the drink you prefer</p>", unsafe_allow_html=True)
+
+    texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
+    selected_texture= st.pills(
+        "", 
+        texture, 
+        selection_mode="multi",
+        key="temp_texture_selection",
+        label_visibility = "collapsed",
+        )
+    
+    # display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
+    random_texture = ""
+    selected_texture_display = ""
+
+    if len(selected_texture) >= 1:
+        random_texture = random.choice(selected_texture) # 從使用者選擇的一或多個項目中選出一個
+        
+        for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
+            selected_texture_display = selected_texture_display + str(selected_texture[i]) + ', '
+        selected_texture_display = selected_texture_display + str(selected_texture[-1])
+        
+        st.markdown("Your selected texture: " + selected_texture_display + ".")
+    else:
+        random_texture = ""
+        selected_texture_display = ""
+        st.markdown("You'll get random texture of drinks!")
+
+
+
 # 我們將會從你的選擇中隨機選取1-x個(toppings) (x = 使用者的選擇數目 <=5 )
 # We will randomly select 1-x (toppings) from your selection.
-
-# 
-
-# [取消客製化topping] -> 可以做成 st.segmented_control
-# I want to randomly generate toppings for drink combinations ( Cancel customization )
-
-# [重新開啟客製化topping] -> 可以做成 st.segmented_control
-# I still want to customize my drink topping. (Re-opening Customization)
-
-
-# 
 
 
 # 🎲 ✅ ✔️ ⚠️ 💸 🔥 🌟 🔄
 
 
-if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
-        update_topping_selection()
+# if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
+        
 
 # --- option_ingredient 的區塊 ---
 
@@ -347,21 +400,7 @@ if 'add_to_fav' not in st.session_state:
         st.session_state['add_to_fav'] = False
 
 #
-        
 
-
-# elif option == "Calories":
-    # st.subheader("Calories")
-
-
-
-# elif option == "Price":
-    # st.subheader("Price")
-
-
-
-# elif option == "Ingredient":
-    # st.subheader("Ingredient")
 
 
 else:
