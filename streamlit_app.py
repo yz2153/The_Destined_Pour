@@ -26,7 +26,7 @@ if "budget_value" not in st.session_state:
 # 重置關於口味與配料的st.session_state
 if 'selected_type' not in st.session_state: # 重置segmented_control
     st.session_state['selected_type'] = ["Topping", "Taste", "Texture"]
-if 'add_topping' not in st.session_atate:
+if 'add_topping' not in st.session_state:
     st.session_state['add_topping'] = True
 if 'selected_topping' not in st.session_state:
     st.session_state['selected_topping'] = []
