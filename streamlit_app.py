@@ -231,32 +231,37 @@ if option_ingredient != 'NO':
 if option_ingredient != 'NO' and "Topping" in selected_type:
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
     
-    st.markdown("<p style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select whether you want to add topping to your drink or not.</p>", unsafe_allow_html=True)
+    st.markdown("<p margin-bottom: 0px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select whether you want to add topping to your drink or not.</p>", unsafe_allow_html=True)
     whether_to_add_topping = st.toggle(
         "",
+        value=True,
         key="add_topping",
         on_change=update_whether_to_add_topping,
         label_visibility="collapsed",
     )
 
     topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
-    selected_topping = st.pills(
-        "", 
-        topping, 
-        selection_mode="multi",
-        key="temp_topping_selection",
-        label_visibility = "collapsed",
-        )
-    
-    selected_topping_display = ""
-    if len(selected_topping) >= 1:
-        for i in range((len(selected_topping)-1)):
-            selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
-        selected_topping_display = selected_topping_display + str(selected_topping[-1])
-    else:
+    if whether_to_add_topping==True:
+        selected_topping = st.pills(
+            "", 
+            topping, 
+            selection_mode="multi",
+            key="temp_topping_selection",
+            label_visibility = "collapsed",
+            )
+        
         selected_topping_display = ""
-    
-    st.markdown("Your selected topping: " + selected_topping_display + ".")
+        if len(selected_topping) >= 1:
+            for i in range((len(selected_topping)-1)):
+                selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
+            selected_topping_display = selected_topping_display + str(selected_topping[-1])
+        else:
+            selected_topping_display = ""
+        
+        st.markdown("Your selected topping: " + selected_topping_display + ".")
+    else:
+        st.markdown("You want a drink without topping.")
+st.divider()
 
 # 風味 taste
 if option_ingredient != 'NO' and "Taste" in selected_type:
@@ -287,6 +292,7 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
         random_taste = ""
         selected_taste_display = ""
         st.markdown("You'll get random taste of drinks!")
+st.divider()
 
 # 口感 Texture
 if option_ingredient != 'NO' and "Texture" in selected_type:
@@ -317,7 +323,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         random_texture = ""
         selected_texture_display = ""
         st.markdown("You'll get random texture of drinks!")
-
+st.divider()
 
 
 # 我們將會從你的選擇中隨機選取1-x個(toppings) (x = 使用者的選擇數目 <=5 )
