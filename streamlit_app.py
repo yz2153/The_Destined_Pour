@@ -27,10 +27,10 @@ if "budget_value" not in st.session_state:
 if 'selected_type' not in st.session_state: # 重置segmented_control
     st.session_state['selected_type'] = ["Topping", "Taste", "Texture"]
 if 'add_topping' not in st.session_state:
-    st.session_state['add_topping'] = True
+    st.session_state['add_topping'] = ":rainbow[YES]"
 
 if 'selected_topping' not in st.session_state:
-    st.session_state['selected_topping'] = []
+    st.session_state['selected_topping'] = ["焙烏龍茶凍 Oolong Tea Jelly"]
 if 'topping_number_max' not in st.session_state:
     st.session_state['topping_number_max'] = 1
 
@@ -123,7 +123,7 @@ def update_from_calories_number():
 
 
 if option_calories != 'NO':
-    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Setting Target Calories for Your Drink</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>1️⃣ Setting Target Calories for Your Drink</p>", unsafe_allow_html=True)
     
     col_calories_slider, col_calories_numberinput = st.columns([6, 1])
 
@@ -166,7 +166,7 @@ def update_from_price_number():
 
 
 if option_price != 'NO':
-    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Setting Your Budget</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>2️⃣ Setting Your Budget</p>", unsafe_allow_html=True)
     
     col_price_slider, col_price_numberinput = st.columns([6, 1])
 
@@ -219,9 +219,9 @@ def update_texture_selection(): # 設定更新texture的session_state
 
 if option_ingredient != 'NO':
     # 區域大標題
-    st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>Customize Your Ingredients</p>", unsafe_allow_html=True)    
+    st.markdown("<p style='margin-bottom: 0px; font-size:20px; color:DarkMagenta; font-weight:bold;'>3️⃣ Customize Your Ingredients</p>", unsafe_allow_html=True)    
     # 標題
-    st.markdown("<p style='font-size:16px; color:DarkMagenta; font-weight:bold;'>Select the type you want to customize~</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkMagenta; font-weight:bold;'>Select the type you want to customize.</p>", unsafe_allow_html=True)
    
    # 設定 選擇客製化ingredients的segmented_control
     type_customization = ["Topping", "Taste", "Texture"]
@@ -238,22 +238,27 @@ if option_ingredient != 'NO':
 
 # 加料 Topping
 if option_ingredient != 'NO' and "Topping" in selected_type:
-    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Customize Your Topping</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ① Customize Your Topping</p>", unsafe_allow_html=True)
     
     # 選擇是否要加料 (False->0)
     st.markdown("<p margin-bottom: 0px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select whether you want to add topping to your drink or not.</p>", unsafe_allow_html=True)
-    whether_to_add_topping = st.toggle(
+    whether_to_add_topping = st.radio(
         "",
-        value=True,
+        [":rainbow[YES]", "NO",],
+        index=0,
         key="add_topping",
         on_change=update_whether_to_add_topping,
+        horizontal=True,
         label_visibility="collapsed",
     )
     
-    if whether_to_add_topping==True:
+    if whether_to_add_topping!="NO": # 如果使用者想要加topping
         # 選擇要添加的topping數量上限 (後面還要跟選擇出來的topping範圍判斷一次)
-        st.markdown("<p margin-bottom: 0px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select the maximum number of topping you want (number between 1-5) </p>", unsafe_allow_html=True)
-        st.caption("We will select a number from 1 to the number you have set as the number of toppings to add (if you later select fewer than the number you have set, we will use the number of toppings you have selected as the maximum number of toppings to add).")
+        st.markdown("<p margin-bottom: 0px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select the maximum number of topping you want (number between 1-5). </p>", unsafe_allow_html=True)
+        st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will select a number from 1 to the number you have set as the number of toppings to add.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ If you later select fewer than the number you have set, we will use the number of toppings you have selected as the maximum number of toppings to add.</p>", unsafe_allow_html=True)
+        # ◇ We will select a number from 1 to the number you have set as the number of toppings to add.
+        # ◇ If you later select fewer than the number you have set, we will use the number of toppings you have selected as the maximum number of toppings to add.
         
         topping_number_max = st.number_input(
             "",
@@ -268,10 +273,11 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
         topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
 
         # 選擇想要放入generator的topping範圍
-        st.markdown("<p margin-bottom: 0px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select whether you want to add topping to your drink or not.</p>", unsafe_allow_html=True)
+        st.markdown("<p margin-top: 2px; margin-bottom: 2px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Please select the type of topping you would like to add to your drink.</p>", unsafe_allow_html=True)
         selected_topping = st.pills(
             "", 
             topping, 
+            default=["珍珠 Golden Bubble/Pearl"],
             selection_mode="multi",
             key="temp_topping_selection",
             label_visibility = "collapsed",
@@ -282,15 +288,14 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
             for i in range((len(selected_topping)-1)):
                 selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
             selected_topping_display = selected_topping_display + str(selected_topping[-1])
+            st.markdown("➡️ Your selected topping: " + selected_topping_display + ".")        
         else:
             selected_topping_display = ""
-    
-        st.markdown("➡️ Your selected topping: " + selected_topping_display + ".")
     else:
         st.markdown("➡️ You want a drink without topping.")
 
     # 如果有要加料的話，隨機出真正要放入generator的topping數量 (topping_number)
-    if whether_to_add_topping==True:
+    if whether_to_add_topping!="NO" and len(selected_topping)>=1:
         # topping_number_max是前面的number_input中使用者自訂的topping上限 
         selected_topping_number = len(selected_topping) # 數出使用者選擇的topping有幾項
 
@@ -300,18 +305,17 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
             topping_number = selected_topping_number
     
         random_topping_result = random.sample(selected_topping, random.randint(1,int(topping_number)))  
-    
-    # 如果沒有要加料的話，將topping_number設定成0
-    if whether_to_add_topping==False:
+
+    else: # 如果沒有要加料的話，將topping_number設定成0 (目前已加上防呆?)
         topping_number = 0
-        
+
     st.divider()
 
 
-# 風味 taste
+# 風味 taste 這個區塊要改成"一定要選至少一個選項"
 if option_ingredient != 'NO' and "Taste" in selected_type:
-    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the taste of the drink you prefer (select at least one option)</p>", unsafe_allow_html=True)
-    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>We will randomly select a taste of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ② Select the taste of the drink you prefer (select at least one option)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a taste of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
 
     taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
     selected_taste = st.pills(
@@ -342,29 +346,10 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
 
 # 口感 Texture
 
-topping_and_texture_warning = (
-    "We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n",
-    "Remarks:\n\n If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”;\n\n if you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”."
-    )
-
-# 定義兩個檢查函式：選項前後不搭的話，跳warning並清空texture的選擇
-def check_Fruitiness(): # 有選"果粒"的話，必須選擇"檸檬"或"香橙"或"柚子 -> 否則跳warning+清掉選項
-    if "果粒 Fruitiness" in random_texture:
-        if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]):
-            st.warning(topping_and_texture_warning)
-            st.session_state['selected_texture'] = [] 
-
-def check_Chewiness(): # 有選"嚼感"的話->必須選擇"珍珠"或"茶凍" -> 否則跳warning+清掉選項
-    if "嚼感 Chewiness" in random_texture:
-        if not whether_to_add_topping or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]):
-            st.warning(topping_and_texture_warning)
-            st.session_state['selected_texture'] = [] 
-
-
 if option_ingredient != 'NO' and "Texture" in selected_type:
-    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the texture of the drink you prefer</p>", unsafe_allow_html=True)
-    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
-    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>If you want to get random texture drinks, turn off texture customization above.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ③ Select the texture of the drink you prefer</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ If you want to get random texture drinks, turn off texture customization above.</p>", unsafe_allow_html=True)
     
     texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
     selected_texture= st.pills(
@@ -374,25 +359,56 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         key="temp_texture_selection", 
         label_visibility = "collapsed", 
         )
-    
-    
-    # display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
-    random_texture = ""
-    selected_texture_display = ""
 
-    if len(selected_texture) >= 1:
+    # 定義兩個檢查函式：選項前後不搭的話，跳warning並清空texture的選擇
+    def check_Fruitiness_Chewiness(): # 有選"果粒"的話，必須選擇"檸檬"或"香橙"或"柚子 -> 否則跳warning+清掉選項 # 有選"嚼感"的話->必須選擇"珍珠"或"茶凍" -> 否則跳warning+清掉選項
+        if ("果粒 Fruitiness" in check_selected_texture) and ("嚼感 Chewiness" in selected_texture):
+            if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]) or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
+                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”;\n if you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”.")
+                invalid_texture = True
+        
+        elif ("果粒 Fruitiness" in check_selected_texture):
+            if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]):
+                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”.")
+                invalid_texture = True
+        
+        elif ("嚼感 Chewiness" in check_selected_texture):
+            if not whether_to_add_topping or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
+                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”.")
+                invalid_texture = True
+        else:
+            invalid_texture = False
+        
+        if invalid_texture==True:
+            st.session_state['selected_texture'] = []
+            selected_texture = []
+
+    # 把random+check+輸出判定結合
+    def random_texture_and_check():
         random_texture = random.choice(selected_texture) # 從使用者選擇的一或多個項目中選出一個
-        
-        for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
-            selected_texture_display = selected_texture_display + str(selected_texture[i]) + ', '
-        selected_texture_display = selected_texture_display + str(selected_texture[-1])
-        
-        check_Fruitiness
-        check_Chewiness
-        st.markdown("➡️ Your selected texture: " + selected_texture_display + ".")
-    else:
+        check_selected_texture = selected_texture
+        selected_texture_display = ""
+        _ = check_Fruitiness_Chewiness()
+
+        if invalid_texture==True: # 如果跳出warning的話 顯示這則訊息
+            st.markdown("🚨 Please ensure that your selection is valid. ")
+        else: # 沒有跳出warning的話 就正常運作
+            for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
+                selected_texture_display = selected_texture_display + str(selected_texture[i]) + ', '
+            selected_texture_display = selected_texture_display + str(selected_texture[-1])
+
+    # 判斷要顯示什麼訊息；display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
+    if len(selected_texture)==0:
         random_texture = ""
         selected_texture_display = ""
+        st.markdown("➡️ You'll get a drink without a specific texture.")
+        
+    elif len(selected_texture)>=1 and len(selected_texture)<3:
+        random_texture_and_check()
+        if invalid_texture==False: # 如果texture檢查通過 沒有發出warning
+            st.markdown("➡️ Your selected texture: " + selected_texture_display + ".")
+    else: # 如果使用者把texture全選
+        random_texture_and_check()
         st.markdown("➡️ You'll get random texture of drinks!")
 
     st.divider()
@@ -412,7 +428,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
 #---下方皆為舊版code 尚待改版---
 #---下方皆為舊版code 尚待改版---
 st.divider()
-
+st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 尚待改版</p>", unsafe_allow_html=True)
 # 初始化
 if 'dice_rolled' not in st.session_state:
     st.session_state['dice_rolled'] = False
@@ -469,7 +485,6 @@ if 'add_to_fav' not in st.session_state:
     if st.button("🔄 Reset"):
         st.session_state['dice_rolled'] = False
         st.session_state['add_to_fav'] = False
-
 
 else:
    st.empty()
