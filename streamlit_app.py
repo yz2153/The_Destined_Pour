@@ -228,7 +228,7 @@ if option_ingredient != 'NO':
     selected_type = st.segmented_control(
         "",
         type_customization,
-        value=["Topping", "Taste", "Texture"],
+        default=["Topping", "Taste", "Texture"],
         selection_mode="multi",
         key="customized_selection",
         on_change=update_customization_selection,
@@ -311,7 +311,7 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
 # 風味 taste
 if option_ingredient != 'NO' and "Taste" in selected_type:
     st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the taste of the drink you prefer (select at least one option)</p>", unsafe_allow_html=True)
-    st.caption("We will randomly select a taste of your selection to be used as a reference for the generator.")
+    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>We will randomly select a taste of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
 
     taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
     selected_taste = st.pills(
@@ -362,17 +362,17 @@ def check_Chewiness(): # 有選"嚼感"的話->必須選擇"珍珠"或"茶凍" -
 
 
 if option_ingredient != 'NO' and "Texture" in selected_type:
-    st.markdown("<p style='font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the texture of the drink you prefer</p>", unsafe_allow_html=True)
-    st.caption("We will randomly select a texture of your selection to be used as a reference for the generator.")
-    st.caption("If you want to get random texture drinks, turn off texture customization above.")
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>Choose the texture of the drink you prefer</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DimGray; font-weight:bold;'>If you want to get random texture drinks, turn off texture customization above.</p>", unsafe_allow_html=True)
     
     texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
     selected_texture= st.pills(
         "", 
         texture, 
         selection_mode="multi",
-        key="temp_texture_selection",
-        label_visibility = "collapsed",
+        key="temp_texture_selection", 
+        label_visibility = "collapsed", 
         )
     
     
@@ -387,6 +387,8 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             selected_texture_display = selected_texture_display + str(selected_texture[i]) + ', '
         selected_texture_display = selected_texture_display + str(selected_texture[-1])
         
+        check_Fruitiness
+        check_Chewiness
         st.markdown("➡️ Your selected texture: " + selected_texture_display + ".")
     else:
         random_texture = ""
@@ -441,8 +443,7 @@ if 'add_to_fav' not in st.session_state:
         ":green-badge[:material/check: Success]"
         )
         #:orange-badge[⚠️ Needs review] :gray-badge[Deprecated]"
-        
-        
+         
         col_price, col_calories = st.columns(2)
         with col_price:
             # 這邊之後要加上產出飲料的價位
@@ -451,7 +452,6 @@ if 'add_to_fav' not in st.session_state:
             <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> fstr_Price </p>
             """, unsafe_allow_html=True
             )
-
 
         with col_calories:
             # 這邊之後要加上產出飲料的熱量
@@ -469,9 +469,6 @@ if 'add_to_fav' not in st.session_state:
     if st.button("🔄 Reset"):
         st.session_state['dice_rolled'] = False
         st.session_state['add_to_fav'] = False
-
-#
-
 
 
 else:
