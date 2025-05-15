@@ -360,37 +360,11 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         label_visibility = "collapsed", 
         )
 
-
-    '''
-    # 定義兩個檢查函式：選項前後不搭的話，跳warning並清空texture的選擇
-    def check_Fruitiness_Chewiness(): # 有選"果粒"的話，必須選擇"檸檬"或"香橙"或"柚子 -> 否則跳warning+清掉選項 # 有選"嚼感"的話->必須選擇"珍珠"或"茶凍" -> 否則跳warning+清掉選項
-        if ("果粒 Fruitiness" in check_selected_texture) and ("嚼感 Chewiness" in selected_texture):
-            if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]) or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
-                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”;\n if you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”.")
-                invalid_texture = True
-        
-        elif ("果粒 Fruitiness" in check_selected_texture):
-            if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]):
-                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”.")
-                invalid_texture = True
-        
-        elif ("嚼感 Chewiness" in check_selected_texture):
-            if not whether_to_add_topping or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
-                st.warning("We will clear your selected texture, please make sure your topping option is turned on and you have the option to select the corresponding texture! \n\n Remarks:\n If you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”.")
-                invalid_texture = True
-        else:
-            invalid_texture = False
-        
-        if invalid_texture==True:
-            st.session_state['selected_texture'] = []
-            selected_texture = []
-    '''
-
-            
+    # 定義隨機+檢查函式：選項前後不搭的話，跳warning並清空texture的選擇           
     # 把random+check+輸出判定結合
-    def random_texture_and_check():
+    def random_texture_and_check(selected_texture_input): # 輸入selected_texture 跑這個function
         random_texture = ""
-        check_selected_texture = selected_texture
+        check_selected_texture = selected_texture_input # selected_texture_input 用來裝原始輸入的input
         random_texture = random.choice(selected_texture) # 從使用者選擇的一或多個項目中選出一個
         selected_texture_display = ""
         invalid_texture = False
@@ -412,7 +386,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         else:
             invalid_texture = False
         
-        if invalid_texture==True:
+        if invalid_texture==True: # 如果使用者亂輸入->清掉他的selected_texture
             st.session_state['selected_texture'] = []
             selected_texture = []
 
@@ -422,7 +396,14 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
                 selected_texture_display = selected_texture_display + str(selected_texture[i]) + ', '
             selected_texture_display = selected_texture_display + str(selected_texture[-1])
-        return selected_texture_display, invalid_texture
+        
+        return random_texture, selected_texture_display, invalid_texture
+
+
+
+
+
+
 
     # 判斷要顯示什麼訊息；display 所有使用者選擇的項目，實際上隨機從中選出一個給generator
     if len(selected_texture)==0:
@@ -431,9 +412,10 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         st.markdown("➡️ You'll get a drink without a specific texture.")
         
     elif len(selected_texture)>=1 and len(selected_texture)<3:
-        selected_texture_display, invalid_texture = random_texture_and_check()
+        random_texture, selected_texture_display, invalid_texture = random_texture_and_check(selected_texture_input=selected_texture)
         if invalid_texture==False: # 如果texture檢查通過 沒有發出warning
             st.markdown("➡️ Your selected texture: " + selected_texture_display + ".")
+
     else: # 如果使用者把texture全選
         selected_texture_display, invalid_texture = random_texture_and_check()
         st.markdown("➡️ You'll get random texture of drinks!")
