@@ -548,7 +548,7 @@ else:
 
 # ----- 接入功能code的必要轉換 -----
 
-# ----- 功能code by 陳宇荃 -----
+# ----- 功能code by 陳 -----
 def get_int_input(prompt, min_val=0, max_val=1000):
     while True:
         user_input = input(prompt)
@@ -749,7 +749,7 @@ if drink_conbination:
 else:
     print("No valid combinations found.")
 
-# ----- 功能code by 陳宇荃 -----
+# ----- 功能code by 陳 -----
 
 
 
