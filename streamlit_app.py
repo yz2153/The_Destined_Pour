@@ -4,8 +4,6 @@ import random
 from itertools import combinations
 import streamlit as st
 
-import sys
-st.write("🔍 Python path:", sys.executable)
 
 # 設定頁面的標題與副標題(模式選擇)
 st.title(":cup_with_straw: The Destined Pour")
@@ -138,7 +136,7 @@ if option_calories != 'NO':
         st.slider(
             "calories_slider",
             min_value=0,
-            max_value=1000,
+            max_value=2000,
             key="calories_slider_value",
             value=st.session_state["calories_value"],
             on_change=update_from_calories_slider,
@@ -149,7 +147,7 @@ if option_calories != 'NO':
         st.number_input(
             "calories_numberinput",
             min_value=0,
-            max_value=1000,
+            max_value=2000,
             key="calories_number_value",
             value=st.session_state["calories_value"],
             on_change=update_from_calories_number,
@@ -294,18 +292,21 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
             )
 
         selected_topping_display = ""
-        if len(selected_topping) >= 1:
+        if len(selected_topping)>0:
             for i in range((len(selected_topping)-1)):
                 selected_topping_display = selected_topping_display + str(selected_topping[i]) + ', '
             selected_topping_display = selected_topping_display + str(selected_topping[-1])
             st.markdown("➡️ Your selected topping: " + selected_topping_display + ".")        
         else:
+            topping_number = 0
             selected_topping_display = ""
+            st.markdown("➡️ You want a drink without topping.")
     else:
+        topping_number = 0
         st.markdown("➡️ You want a drink without topping.")
 
     # 如果有要加料的話，隨機出真正要放入generator的topping數量 (topping_number)
-    if whether_to_add_topping!="NO" and len(selected_topping)>=1:
+    if whether_to_add_topping!="NO" and len(selected_topping)>0:
         # topping_number_max是前面的number_input中使用者自訂的topping上限 
         selected_topping_number = len(selected_topping) # 數出使用者選擇的topping有幾項
 
@@ -313,8 +314,9 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
             topping_number = topping_number_max
         else:
             topping_number = selected_topping_number
-    
-        random_topping_result = random.sample(selected_topping, random.randint(1,int(topping_number)))  
+
+        random_topping_number = random.randint(1,int(topping_number))
+        random_topping_result = random.sample(selected_topping, random_topping_number)
 
     else: # 如果沒有要加料的話，將topping_number設定成0 (目前已加上防呆?)
         topping_number = 0
@@ -322,10 +324,11 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
     st.divider()
 
 
-# 風味 taste 這個區塊要改成"一定要選至少一個選項"
+# 風味 taste 
 if option_ingredient != 'NO' and "Taste" in selected_type:
-    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ② Select the taste of the drink you prefer (select at least one option)</p>", unsafe_allow_html=True)
-    st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a taste of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ② Select the taste of the drink you prefer</p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ If no option is selected, it is considered a full selection. </p>", unsafe_allow_html=True)    
+    st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a taste of your selection to be used as a reference for the generator. </p>", unsafe_allow_html=True)
 
     taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
     selected_taste = st.pills(
@@ -340,7 +343,7 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
     random_taste = ""
     selected_taste_display = ""
 
-    if len(selected_taste) >= 1:
+    if len(selected_taste)>0:
         random_taste = random.choice(selected_taste) # 從使用者選擇的一或多個項目中選出一個
         
         for i in range((len(selected_taste)-1)): # 設定顯示在頁面上的選項
@@ -348,8 +351,8 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
         selected_taste_display = selected_taste_display + str(selected_taste[-1])
         
         st.markdown("➡️ Your selected taste: " + selected_taste_display + ".")
-    else:
-        random_taste = ""
+    else: # 沒選視同全選->直接從所有選項中隨機
+        random_taste = random.choice(taste) 
         selected_taste_display = ""
         st.markdown("➡️ You'll get random taste of drinks!")
     st.divider()
@@ -389,9 +392,6 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 if ("嚼感 Chewiness" in selected_texture_list):
                     if not whether_to_add_topping or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
                         invalid_texture = True
-                st.write(selected_topping)
-                st.write(selected_texture)
-                st.write(invalid_texture)
                 
                 # 無論有沒有跳出warning 都可以做random 有warning的話 後續不輸出即可
                 for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
@@ -413,7 +413,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     selected_texture_display = ""
                     st.session_state['check_reminder_status'] = "success_0"
     
-                if len(selected_texture)>=1 and len(selected_texture)<3:
+                if len(selected_texture)>0 and len(selected_texture)<3:
                         random_texture, selected_texture_display, invalid_texture = random_texture_and_check(
                             selected_topping=selected_topping, selected_texture=selected_texture
                             )
@@ -503,15 +503,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 )
                 # st.success("➡️ You'll get random texture of drinks!")
             # st.session_state['check_reminder_status'] = False # 還原check_reminder_status的session_state
-        st.write("whether_to_add_topping:", whether_to_add_topping)
-        st.write("selected_topping:", selected_topping)
-        st.write("selected_texture:", selected_texture)
-        st.write("random_texture:", random_texture)
-        st.write(st.session_state.get('invalid_texture', ''))
-        st.write(st.session_state.get('check_reminder_status', ''))
-
         
-
     st.divider()
 
 # ----- 客製化設定結束 -----
@@ -520,9 +512,39 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
 
 # ----- 接入功能code的必要轉換 -----
 
+# 要進generator的：
+# 價格是 budget_text 
+# 卡路里是 calories_text 
+# 是否加料是 whether_to_add_topping (T/F)
+# topping number是 random_topping_number 
+# topping選擇是 random_topping_result 
+# taste是 random_taste (一個) (不選視同全選 所以永遠都是一個)
+# texture是 random_texture (一個) (不選跟全選不同 不選是"") 
 
+mode = "no" # 目前預設為no
+calorie_target = int(calories_text)
+price_target = int(budget_text) 
+topping_set = random_topping_result  # topping_set其實是list！！！
+topping_num = random_topping_number
+taste_preference = random_taste # 有名稱修改問題需要處理
 
+# taste 改名
+taste_name_generator = ['甘', '苦', '酸', '甜', '酸甜', '奶味', '無']
+taste_name_dict = dict(zip(taste, taste_name_generator))
 
+if taste_preference in taste_name_dict:
+    taste_preference = taste_name_dict[taste_preference]
+
+# 處理texture不選或全選的狀況 + texture 改名
+texture_name_generator = ['果粒', '濃厚', '嚼感']
+texture_name_dict = dict(zip(texture, texture_name_generator))
+
+if random_texture=="": # 有名稱修改問題需要處理
+    texture_preference = "無"
+else:
+    texture_preference = random_texture
+    if texture_preference in texture_name_dict:
+        texture_preference = texture_name_dict[texture_preference]
 
 # ----- 接入功能code的必要轉換 -----
 
@@ -594,19 +616,6 @@ if topping_num == '無':
     topping_num = 2147483647
 if calorie_target == '無':
     calorie_target = 2147483647
-
-# ---
-topping_set = ['香橙', '甘蔗', '春梅', '柚子']
-df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
-
-initial_toppings = df_topping[df_topping['Name'].isin(topping_set)]
-topping_calories_initial_med = sum(int(row['Cal_med']) for _, row in initial_toppings.iterrows())
-topping_price_initial_med = sum(int(row['Price_med']) for _, row in initial_toppings.iterrows())
-topping_calories_initial_big = sum(int(row['Cal_big']) for _, row in initial_toppings.iterrows())
-topping_price_initial_big = sum(int(row['Price_big']) for _, row in initial_toppings.iterrows())
-
-if (len(topping_set)>min(topping_num, len(df_topping))):
-    print('too many toppings')
 
 # ---
 topping_set = ['香橙', '甘蔗', '春梅', '柚子']
