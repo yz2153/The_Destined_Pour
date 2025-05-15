@@ -1,9 +1,12 @@
 # import numpy as np
-# import pandas as pd
+import pandas as pd
 import random
 from itertools import combinations
 import streamlit as st
- 
+
+import sys
+st.write("🔍 Python path:", sys.executable)
+
 # 設定頁面的標題與副標題(模式選擇)
 st.title(":cup_with_straw: The Destined Pour")
 st.header("Select the generator mode you want!")
@@ -224,7 +227,7 @@ def update_texture_selection(): # 設定更新texture的session_state
 def update_check_button():
     st.session_state.check_combination_status = True
 
-if option_ingredient != 'NO': # 有時間可以把這個區塊中的小區塊都改成st.container
+if option_ingredient != 'NO': # 有時間可以把這個區塊中的小區塊都改成st.container()
     # 區域大標題
     st.markdown("<p style='margin-bottom: 0px; font-size:20px; color:DarkMagenta; font-weight:bold;'>3️⃣ Customize Your Ingredients</p>", unsafe_allow_html=True)    
     # 標題
@@ -367,23 +370,28 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         label_visibility = "collapsed", 
         )
 
-    with st.form('check_and_reminder_form', clear_on_submit=True, border=False,):
+    with st.form('check_and_reminder_form', clear_on_submit=False, border=False,):
         with st.container(border=True,):
             # 定義隨機+檢查函式：選項前後不搭的話，跳warning         
             # 把random+check結合
             def random_texture_and_check(selected_topping, selected_texture): # 輸入selected_texture 跑這個function
                 random_texture = ""
+                selected_texture_list = []
                 random_texture = random.choice(selected_texture) # 從使用者選擇的一或多個項目中選出一個
                 selected_texture_display = ""
                 invalid_texture = False
+                selected_texture_list = list(selected_texture)
 
-                if ("果粒 Fruitiness" in selected_texture):
+                if ("果粒 Fruitiness" in selected_texture_list):
                     if not whether_to_add_topping or not any(item in selected_topping for item in ["檸檬 Lemon", "香橙 Orange", "柚子 Yuzu/Pomelo"]):
                         invalid_texture = True
                 
-                if ("嚼感 Chewiness" in selected_texture):
+                if ("嚼感 Chewiness" in selected_texture_list):
                     if not whether_to_add_topping or not any(item in selected_topping for item in ["珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly",]):
                         invalid_texture = True
+                st.write(selected_topping)
+                st.write(selected_texture)
+                st.write(invalid_texture)
                 
                 # 無論有沒有跳出warning 都可以做random 有warning的話 後續不輸出即可
                 for i in range((len(selected_texture)-1)): # 設定顯示在頁面上的選項
@@ -422,6 +430,10 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     random_texture, selected_texture_display, invalid_texture = random_texture_and_check(
                             selected_topping=selected_topping, selected_texture=selected_texture
                             )
+                    st.session_state['random_texture'] = random_texture
+                    st.session_state['selected_texture_display'] = selected_texture_display
+                    st.session_state['invalid_texture'] = invalid_texture
+
                     if st.session_state['invalid_texture']==True: # 如果檢查不通過(跳出warning) 顯示這則訊息
                         st.session_state['check_reminder_status'] = "error"
                     if st.session_state['invalid_texture']==False: # 如果texture檢查通過 (沒有發出warning) 列出使用者選擇的項目
@@ -446,7 +458,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                         <div style="border-left: 0.3rem solid red; padding: 1rem; background-color: #ffe6e6;">
                             <strong>⚠️ ERROR: </strong><br>
                             Please make sure your topping option is turned on and you have selected the topping for the corresponding texture!<br><br>
-                            <u>Remarks:</u><br>
+                            <u>Reminds:</u><br>
                             ◇ If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”;<br>
                             ◇ If you choose “嚼感 Chewiness” for your texture, you need to choose topping “珍珠 Golden Bubble/Pearl” or “焙烏龍茶凍 Oolong Tea Jelly”.
                         </div>
@@ -455,29 +467,287 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     )
                 
             if st.session_state['check_reminder_status']=="success_0": # 如果texture檢查通過 (沒有發出warning) 顯示這則訊息
-                st.success("➡️ You'll get a drink without a specific texture.")
+                st.markdown(
+                    f"""
+                    <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
+                        <strong>✅ SUCCESS:</strong><br><br>
+                        ➡️ You'll get random texture of drinks!<br><br>
+                        ◇ Everything looks good. Proceed to generate your drink!
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
             if st.session_state['check_reminder_status']=="success_12": # 如果texture檢查通過 (沒有發出warning) 列出使用者選擇的項目
-                st.success("➡️ Your selected texture: " + st.session_state.get('selected_texture_display', '') + ".")
+                selected_texture_display = st.session_state.get('selected_texture_display', '')
+                st.markdown(
+                    f"""
+                    <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
+                        <strong>✅ SUCCESS:</strong><br><br>
+                        ➡️ Your selected texture: <b>{selected_texture_display}</b>.<br><br>
+                        ◇ Everything looks good. Proceed to generate your drink!
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                # st.success("➡️ Your selected texture: " + st.session_state.get('selected_texture_display', '') + ".")
             if st.session_state['check_reminder_status']=="success_3":
-                st.success("➡️ You'll get random texture of drinks!")
-            # st.session_state['check_combination_status'] = False # 還原check_combination_status的session_state
+                st.markdown(
+                    f"""
+                    <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
+                        <strong>✅ SUCCESS:</strong><br><br>
+                        ➡️ You'll get random texture of drinks!<br><br>
+                        ◇ Everything looks good. Proceed to generate your drink!
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                # st.success("➡️ You'll get random texture of drinks!")
+            # st.session_state['check_reminder_status'] = False # 還原check_reminder_status的session_state
+        st.write("whether_to_add_topping:", whether_to_add_topping)
+        st.write("selected_topping:", selected_topping)
+        st.write("selected_texture:", selected_texture)
+        st.write("random_texture:", random_texture)
+        st.write(st.session_state.get('invalid_texture', ''))
+        st.write(st.session_state.get('check_reminder_status', ''))
+
+        
 
     st.divider()
 
+# ----- 客製化設定結束 -----
 
-# 我們將會從你的選擇中隨機選取1-x個(toppings) (x = number of user selections and 1 <= x <=5 )
-# We will randomly select 1-x (topping) from your selection.
+# 一些emoji：🎲 ✅ ✔️ ⚠️ 🚨 👈 💸 🔥 🌟 🔄 ➡️ 🆗
 
-# 🎲 ✅ ✔️ ⚠️ 💸 🔥 🌟 🔄 ➡️
+# ----- 接入功能code的必要轉換 -----
 
 
-# if st.button("✅ 確認配料與風味選擇"): # 之後要跟其他客製化項目合併？？？ 但為什麼覺得不需要加？
+
+
+
+# ----- 接入功能code的必要轉換 -----
+
+# ----- 功能code by 陳宇荃 -----
+def get_int_input(prompt, min_val=0, max_val=1000):
+    while True:
+        user_input = input(prompt)
+        if user_input == '無':
+            return '無'
+        try:
+            value = int(user_input)
+            if min_val <= value <= max_val:
+                return value
+            else:
+                print(f"Please enter a number between {min_val} and {max_val}.")
+
+        except ValueError:
+            print("Invalid input. Please enter a number or '無'.")
+
+def get_text_input(prompt, valid_tastes):
+    while True:
+        value = input(prompt)
+        if value in valid_tastes:
+            return value
+        else:
+            print(f"Invalid taste. Please choose from: {', '.join(valid_tastes)}")
+
+valid_mode = ['yes', 'no']
+valid_type = ['飲料', '加料', '副飲']
+valid_tastes = ['甘', '苦', '酸', '甜', '酸甜', '奶味', '無']
+valid_texture = ['果粒', '濃厚', '嚼感', '無']
+
+# ---
+
+file_open = open("drink.txt", "r")
+some_text = file_open.readlines()
+elements = {}
+for i in range(len(some_text)):
+    elements[i] = some_text[i].split()
+df = pd.DataFrame.from_dict(elements, orient='index')
+df.columns = ['Name', 'Price_med', 'Price_big', 'Type', 'Taste', 'Texture', 'Cal_med', 'Cal_big']
+# df
+
+# ---
+valid_sex = ['男', '女']
+mode = get_text_input("Do you want customized mode (yes/no)?", valid_mode)
+
+if mode == 'yes':
+    sex = get_text_input("Enter your sex (男/女):", valid_sex)
+    age = get_int_input("Enter your age (0~200): ", 0, 200)
+    height = get_int_input("Enter your height in cm: ", 0, 250)
+    weight = get_int_input("Enter your weight in kg: ", 0, 250)
+    if sex == '男':
+      calorie_target = (66+13.7*weight+5*height-6.8*age)*0.2
+    else:
+      calorie_target = (655+9.6*weight+1.8*height-4.7*age)*0.2
+
+else:
+    calorie_target = get_int_input("Enter your target calories (0~2000) or '無' if no calories limit: ", 0, 2000)
+
+price_target = get_int_input("Enter your price limit (0~1000) or '無' if no price limit: ", 0, 1000)
+taste_preference = get_text_input("Enter preferred taste (甘, 苦, 酸, 甜, 酸甜, 奶味) or '無' if no taste requirement: ", valid_tastes)
+texture_preference = get_text_input("Enter preferred texture (果粒, 濃厚, 嚼感) or '無' if no taste requirement: ", valid_texture)
+topping_num = get_int_input("Enter the number of toppings(0~5) or '無' if no toppings number limit: ", 0, 5)
+
+if price_target == '無':
+    price_target = 2147483647
+if topping_num == '無':
+    topping_num = 2147483647
+if calorie_target == '無':
+    calorie_target = 2147483647
+
+# ---
+topping_set = ['香橙', '甘蔗', '春梅', '柚子']
+df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
+
+initial_toppings = df_topping[df_topping['Name'].isin(topping_set)]
+topping_calories_initial_med = sum(int(row['Cal_med']) for _, row in initial_toppings.iterrows())
+topping_price_initial_med = sum(int(row['Price_med']) for _, row in initial_toppings.iterrows())
+topping_calories_initial_big = sum(int(row['Cal_big']) for _, row in initial_toppings.iterrows())
+topping_price_initial_big = sum(int(row['Price_big']) for _, row in initial_toppings.iterrows())
+
+if (len(topping_set)>min(topping_num, len(df_topping))):
+    print('too many toppings')
+
+# ---
+topping_set = ['香橙', '甘蔗', '春梅', '柚子']
+df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
+
+initial_toppings = df_topping[df_topping['Name'].isin(topping_set)]
+topping_calories_initial_med = sum(int(row['Cal_med']) for _, row in initial_toppings.iterrows())
+topping_price_initial_med = sum(int(row['Price_med']) for _, row in initial_toppings.iterrows())
+topping_calories_initial_big = sum(int(row['Cal_big']) for _, row in initial_toppings.iterrows())
+topping_price_initial_big = sum(int(row['Price_big']) for _, row in initial_toppings.iterrows())
+
+if (len(topping_set)>min(topping_num, len(df_topping))):
+    print('too many toppings')
+
+# ---
+drink_conbination = []
+df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
+for i in range(len(df_drink)):
+  for j in range(len(df_side)+1):
+    for k in range(0, min(topping_num + 1 - len(topping_set), len(df_filtered) + 1)):
+      for combo in combinations(range(len(df_filtered)), k):
+        topping_calories = topping_calories_initial_med + sum(int(df_filtered.iloc[t]['Cal_med']) for t in combo)
+        topping_price = topping_price_initial_med + sum(int(df_filtered.iloc[t]['Price_med']) for t in combo)
+        topping_names = topping_set + [df_filtered.iloc[t]['Name'] for t in combo]
+        drink = df_drink.iloc[i]
+        side = df_side.iloc[j-1]
+
+        if (j == 0):
+            total_calories = int(drink['Cal_med']) + topping_calories
+            total_price = int(drink['Price_med']) + topping_price
+            if (
+            total_calories <= calorie_target and
+            total_price <= price_target and
+            (drink['Taste'] == taste_preference or
+            (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
+            taste_preference == '無') and
+            (drink['Texture'] == texture_preference or
+            (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo))
+            or texture_preference=='無')
+            ): drink_conbination.append({
+                'Drink': drink['Name'],
+                'Size' : '中杯',
+                'Topping': topping_names,
+                'Side': '無',
+                'Total Calories': total_calories,
+                'Total Price': total_price
+            })
+                
+        else:
+          total_calories = int(drink['Cal_med']) + topping_calories + int(side['Cal_med'])
+          total_price = int(drink['Price_med']) + topping_price + int(side['Price_med'])
+
+          if (
+            total_calories <= calorie_target and
+            total_price <= price_target and
+            (drink['Taste'] == taste_preference or
+            (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
+            side['Taste'] == taste_preference or
+             taste_preference == '無') and
+            (drink['Texture'] == texture_preference or
+            (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
+            side['Texture'] == texture_preference or
+             texture_preference == '無')
+          ): drink_conbination.append({
+                'Drink': drink['Name'],
+                'Size' : '中杯',
+                'Topping': topping_names,
+                'Side': side['Name'],
+                'Total Calories': total_calories,
+                'Total Price': total_price
+            })
+
+for i in range(len(df_drink)):
+  for j in range(len(df_side)+1):
+    for k in range(0, min(topping_num + 1 - len(topping_set), len(df_filtered) + 1)):
+      for combo in combinations(range(len(df_filtered)), k):
+        topping_calories = topping_calories_initial_big + sum(int(df_filtered.iloc[t]['Cal_big']) for t in combo)
+        topping_price = topping_price_initial_big + sum(int(df_filtered.iloc[t]['Price_big']) for t in combo)
+        topping_names = topping_set + [df_filtered.iloc[t]['Name'] for t in combo]
+        drink = df_drink.iloc[i]
+        side = df_side.iloc[j-1]
+
+        if (j == 0):
+            total_calories = int(drink['Cal_big']) + topping_calories
+            total_price = int(drink['Price_big']) + topping_price
+            if (
+            total_calories <= calorie_target and
+            total_price <= price_target and
+            (drink['Taste'] == taste_preference or
+            (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
+             taste_preference == '無') and
+            (drink['Texture'] == texture_preference or
+            (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
+             texture_preference == '無')
+          ): drink_conbination.append({
+                'Drink': drink['Name'],
+                'Size' : '大杯',
+                'Topping': topping_names,
+                'Side': '無',
+                'Total Calories': total_calories,
+                'Total Price': total_price
+            })
+                
+        else:
+          total_calories = int(drink['Cal_big']) + topping_calories + int(side['Cal_big'])
+          total_price = int(drink['Price_big']) + topping_price + int(side['Price_big'])
+          if (
+            total_calories <= calorie_target and
+            total_price <= price_target and
+            (drink['Taste'] == taste_preference or
+            (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
+            side['Taste'] == taste_preference or
+             taste_preference == '無') and
+            (drink['Texture'] == texture_preference or
+            (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
+            side['Texture'] == texture_preference or
+             texture_preference == '無')
+          ): drink_conbination.append({
+                'Drink': drink['Name'],
+                'Size' : '大杯',
+                'Topping': topping_names,
+                'Side': side['Name'],
+                'Total Calories': total_calories,
+                'Total Price': total_price
+            })
+              
+if drink_conbination:
+    chosen = random.choice(drink_conbination)
+    print("Your destined pour:")
+    print(chosen)
+else:
+    print("No valid combinations found.")
+
+# ----- 功能code by 陳宇荃 -----
 
 
 
 #---下方皆為舊版code 尚待改版---
 #---下方皆為舊版code 尚待改版---
 #---下方皆為舊版code 尚待改版---
+
 st.divider()
 st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 尚待改版</p>", unsafe_allow_html=True)
 # 初始化
@@ -512,6 +782,7 @@ if 'add_to_fav' not in st.session_state:
         #:orange-badge[⚠️ Needs review] :gray-badge[Deprecated]"
          
         col_price, col_calories = st.columns(2)
+
         with col_price:
             # 這邊之後要加上產出飲料的價位
             st.markdown(f"""
