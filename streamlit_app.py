@@ -247,6 +247,8 @@ if option_ingredient != 'NO': # 有時間可以把這個區塊中的小區塊都
 
 
 # 加料 Topping
+topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
+
 if option_ingredient != 'NO' and "Topping" in selected_type:
     st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ① Customize Your Topping</p>", unsafe_allow_html=True)
     
@@ -279,8 +281,6 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
             on_change=update_topping_number_max,
             label_visibility = "collapsed",
         )
-        
-        topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
 
         # 選擇想要放入generator的topping範圍
         st.markdown("<p margin-top: 2px; margin-bottom: 2px; style='font-size:14px; color:DarkSlateBlue; font-weight:bold;'>Select the type of topping you would like to add to your drink.</p>", unsafe_allow_html=True)
@@ -322,17 +322,18 @@ if option_ingredient != 'NO' and "Topping" in selected_type:
 
     else: # 如果沒有要加料的話，將topping_number設定成0 (目前已加上防呆?)
         topping_number = 0
+        selected_topping = []
 
     st.divider()
 
 
 # 風味 taste 
+taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
 if option_ingredient != 'NO' and "Taste" in selected_type:
     st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ② Select the taste of the drink you prefer</p>", unsafe_allow_html=True)
     st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ If no option is selected, it is considered a full selection. </p>", unsafe_allow_html=True)    
     st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a taste of your selection to be used as a reference for the generator. </p>", unsafe_allow_html=True)
 
-    taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor"]
     selected_taste = st.pills(
         "Select the taste of the drink you prefer", 
         taste, 
@@ -360,13 +361,12 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
     st.divider()
 
 # 口感 Texture
-
+texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
 if option_ingredient != 'NO' and "Texture" in selected_type:
     st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ③ Select the texture of the drink you prefer</p>", unsafe_allow_html=True)
     st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
     st.markdown("<p style='margin-bottom: 4px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ If you want to get random texture drinks, turn off texture customization above.</p>", unsafe_allow_html=True)
     
-    texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
     selected_texture= st.pills(
         "Select the texture of the drink you prefer", 
         texture, 
@@ -569,16 +569,16 @@ if option_ingredient!="NO":
         taste_preference = '無'
     
     if 'Texture' in selected_type:
-        texture_preference = random_texture # 有名稱修改問題(已處理)
+        texture_preference = st.session_state['random_texture'] # 有名稱修改問題(已處理)
 
         # 處理texture不選或全選的狀況 + texture 改名
         texture_name_generator = ['果粒', '濃厚', '嚼感']
         texture_name_dict = dict(zip(texture, texture_name_generator))
 
-        if random_texture=="": # 有名稱修改問題需要處理
+        if st.session_state['random_texture']=="": # 有名稱修改問題需要處理
             texture_preference = "無"
         else:
-            texture_preference = random_texture
+            texture_preference = st.session_state['random_texture']
             if texture_preference in texture_name_dict:
                 texture_preference = texture_name_dict[texture_preference]
 
@@ -625,6 +625,12 @@ for i in range(len(some_text)):
 df = pd.DataFrame.from_dict(elements, orient='index')
 df.columns = ['Name', 'Price_med', 'Price_big', 'Type', 'Taste', 'Texture', 'Cal_med', 'Cal_big']
 # df
+df_drink = df[df['Type'] == '飲料']
+# df_drink = df_drink.reset_index(drop=True)
+df_topping = df[df['Type'] == '加料']
+# df_topping = df_topping.reset_index(drop=True)
+df_side = df[df['Type'] == '副飲']
+#　df_side = df_side.reset_index(drop=True)
 
 # ---
 valid_sex = ['男', '女']
@@ -668,9 +674,9 @@ topping_price_initial_med = sum(int(row['Price_med']) for _, row in initial_topp
 topping_calories_initial_big = sum(int(row['Cal_big']) for _, row in initial_toppings.iterrows())
 topping_price_initial_big = sum(int(row['Price_big']) for _, row in initial_toppings.iterrows())
 
+# 還沒有加上這條warning
 if (len(topping_set)>min(topping_num, len(df_topping))):
     print('too many toppings')
-
 
 # ----- 功能code by 陳 -----
 
@@ -693,7 +699,12 @@ if 'drink_combination' not in st.session_state:
 if st.session_state['check_reminder_status']!="error": # 前面檢查通過之後 才能讓使用者使用generator
     with st.container():
         st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
-        st.header("Random generator")
+        st.markdown("""
+        <h1 style='font-size: 24px; font-weight: 600; margin-bottom: 16px;'>
+            Random generator
+        </h1>
+        """, unsafe_allow_html=True)
+        # st.header("Random generator")
         
         with st.form('generator_form', clear_on_submit=False, border=False,):
             submitted_generator = st.form_submit_button("🎲 Roll the dice! ") 
@@ -702,7 +713,7 @@ if st.session_state['check_reminder_status']!="error": # 前面檢查通過之�
                 #st.session_state['dice_rolled'] = True
             # if st.session_state['dice_rolled']:
 
-                # ---
+                # ----- 功能code by 陳 -----
                 drink_conbination = []
                 df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
                 for i in range(len(df_drink)):
@@ -813,79 +824,87 @@ if st.session_state['check_reminder_status']!="error": # 前面檢查通過之�
                                         'Total Calories': total_calories,
                                         'Total Price': total_price
                                     })
-                            
-                if drink_conbination:
-                    chosen_drink_combination = random.choice(drink_conbination)
-                    st.session_state['drink_combination'] = chosen_drink_combination
-                    
-                    drink_combination_display = drink_conbination
-                    del drink_combination_display['Total Calories']
-                    del drink_combination_display['Total Price']
-                    df_drink_combination_display = pd.DataFrame(drink_combination_display)
-                    df_drink_combination_display = df_drink_combination_display.T
-                    # print("Your destined pour:")
-                    # print(chosen_drink_combination)
-                # else:
-                    # print("No valid combinations found.")
 
-            # 連接好方程式之後要再改版這個區塊
+                # ----- 功能code by 陳 -----
+                
+            # if drink_conbination:
+                chosen_drink_combination = random.choice(drink_conbination)
+                st.session_state['drink_combination'] = chosen_drink_combination
+                chosen_drink_combination_topping = ''
+                chosen_drink_price = chosen_drink_combination['Total Price']
+                chosen_drink_calories = chosen_drink_combination['Total Calories']
 
-            st.markdown(f"""
-            <div style='font-size:20px; font-weight:bold;'>
-            Formula_of_the_drink
-            </div>
-            """, unsafe_allow_html=True) # [store_name] 暫時取消
+                for i in range((len(chosen_drink_combination['Topping'])-1)):
+                    chosen_drink_combination_topping = chosen_drink_combination_topping + str(chosen_drink_combination['Topping'][i]) + ', '
+                chosen_drink_combination_topping = chosen_drink_combination_topping + str(chosen_drink_combination['Topping'][-1])
 
-            st.dataframe(
-                df_drink_combination_display, 
-                hide_index=True,
-            )
-            # ------
-        
-            # 這裡要再加 Badge
-            st.markdown(
-            ":green-badge[:material/check: Success]"
-            )
+                drink_combination_display = dict()
+                drink_combination_display = {
+                    'Random Items': 'Content', 
+                    'Drink': chosen_drink_combination['Drink'],
+                    'Size': chosen_drink_combination['Size'], 
+                    'Topping': chosen_drink_combination_topping, 
+                    'Side': chosen_drink_combination['Side'],
+                }
+
+                df_drink_combination_display = pd.DataFrame(drink_combination_display, index=[0])
+                df_drink_combination_display_T = df_drink_combination_display.T
+                # print("Your destined pour:")
+                # print(chosen_drink_combination)
+            # else:
+                # print("No valid combinations found.")
+
+                st.markdown(f"""
+                <div style='font-size:20px; font-weight:bold;'>
+                Formula_of_the_drink
+                </div>
+                """, unsafe_allow_html=True) # [store_name] 暫時取消
+
+                st.dataframe(
+                    df_drink_combination_display_T, 
+                    # hide_index=True,
+                )
+
+                # ------
+                st.markdown(
+                ":green-badge[:material/check: Success]"
+                )
+                
+                col_price, col_calories = st.columns(2) # 這邊的內容可以考慮改用st.metric呈現
+
+                with col_price:
+                    # 這邊之後要加上產出飲料的價位
+                    st.markdown(f"""
+                    <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
+                    <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_price} </p>
+                    """, unsafe_allow_html=True
+                    )
+
+                with col_calories:
+                    # 這邊之後要加上產出飲料的熱量
+                    st.markdown(f"""
+                    <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
+                    <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
+                    """, unsafe_allow_html=True
+                    )
+
+                st.session_state['add_to_fav'] = st.toggle('Add to favorite?', key="toggle_fav")
+                if st.session_state['add_to_fav']:
+                    st.success("🌟 已加入最愛！")
             
-            col_price, col_calories = st.columns(2) # 這邊的內容可以考慮改用st.metric呈現
-
-            with col_price:
-                # 這邊之後要加上產出飲料的價位
-                st.markdown(f"""
-                <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
-                <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> total_price </p>
-                """, unsafe_allow_html=True
-                )
-
-            with col_calories:
-                # 這邊之後要加上產出飲料的熱量
-                st.markdown(f"""
-                <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
-                <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> total_calories </p>
-                """, unsafe_allow_html=True
-                )
-
-            st.session_state['add_to_fav'] = st.toggle('Add to favorite?', key="toggle_fav")
-            if st.session_state['add_to_fav']:
-                st.success("🌟 已加入最愛！")
-        
-        st.markdown("""
-        <div style="
-            background-color: #f3e8ff;
-            border: 1px solid #a855f7;
-            border-radius: 8px;
-            padding: 12px 16px;
-            color: #4b0082;
-            font-family: sans-serif;
-            margin: 10px 0;
-        ">
-            🌠 <strong>Tips:</strong> If you want to regenerate a drink, re-click on the button called “🎲 Roll the dice!”
-        </div>
-        """, unsafe_allow_html=True)
-
-else:
-    st.empty()
-
+                st.markdown("""
+                <div style="
+                    background-color: #f3e8ff;
+                    border: 1px solid #a855f7;
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    color: #4b0082;
+                    font-family: sans-serif;
+                    margin: 10px 0;
+                ">
+                    🌠 <strong>Tips:</strong> If you want to regenerate a drink, re-click on the button called “🎲 Roll the dice!”
+                </div>
+                """, unsafe_allow_html=True)
 
 
     # [棄用/暫放]如果按下reset 把'dice_rolled'和'add_to_fav'的session.state重置
