@@ -424,7 +424,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                         st.session_state['invalid_texture'] = invalid_texture
 
                         if st.session_state['invalid_texture']==True: # 如果檢查不通過(跳出warning) 顯示這則訊息
-                            st.session_state['check_reminder_status'] = "error"
+                            st.session_state['check_reminder_status'] = "warning"
                         if st.session_state['invalid_texture']==False: # 如果texture檢查通過 (沒有發出warning) 列出使用者選擇的項目
                             st.session_state['check_reminder_status'] = "success_12"
 
@@ -437,7 +437,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     st.session_state['invalid_texture'] = invalid_texture
 
                     if st.session_state['invalid_texture']==True: # 如果檢查不通過(跳出warning) 顯示這則訊息
-                        st.session_state['check_reminder_status'] = "error"
+                        st.session_state['check_reminder_status'] = "warning"
                     if st.session_state['invalid_texture']==False: # 如果texture檢查通過 (沒有發出warning) 列出使用者選擇的項目
                         st.session_state['check_reminder_status'] = "success_3"
                     
@@ -446,19 +446,19 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     st.markdown("👈 Please click the check button after the selection is complete.")
                 if st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3", ]: # 如果texture檢查通過 (沒有發出warning) 顯示這則訊息
                     st.markdown("🆗 Pass! This combination can be used. ")
-                if st.session_state['check_reminder_status']=="error": # 如果檢查不通過(跳出warning) 顯示這則訊息
-                    st.markdown("🚨 Please ensure that your selection is valid. ")
+                if st.session_state['check_reminder_status']=="warning": # 如果檢查不通過(跳出warning) 顯示這則訊息
+                    st.markdown("⚠️ Please make sure your selection is valid or we will add more ingredients based on your texture selection. ") # 
 
             # 顯示在button下方
             st.markdown("<p style='margin-top: 0px; margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ Please make sure your customized combination is valid before generating. </p>", unsafe_allow_html=True)
 
         with st.container():
 
-            if st.session_state['check_reminder_status']=="error":
+            if st.session_state['check_reminder_status']=="warning":
                 st.markdown(
                         """
-                        <div style="border-left: 0.3rem solid red; padding: 1rem; background-color: #ffe6e6;">
-                            <strong>⚠️ ERROR: </strong><br>
+                        <div style="border-left: 0.3rem solid orange; padding: 1rem; background-color: #fff7e6;">
+                            <strong>⚠️ Warning: </strong><br>
                             Please make sure your topping option is turned on and you have selected the topping for the corresponding texture!<br><br>
                             <u>Reminds:</u><br>
                             ◇ If you choose “果粒 Fruitiness” for your texture, you need to choose topping “檸檬 Lemon” or “香橙 Orange” or “柚子 Yuzu/Pomelo”;<br>
