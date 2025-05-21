@@ -610,7 +610,7 @@ if option_ingredient!="NO":
 #         else:
 #             print(f"Invalid taste. Please choose from: {', '.join(valid_tastes)}")
 
-valid_mode = ['yes', 'no']
+valid_mode = ['yes', 'no'] # 目前會預設為'no'
 valid_type = ['飲料', '加料', '副飲']
 valid_tastes = ['甘', '苦', '酸', '甜', '酸甜', '奶味', '無']
 valid_texture = ['果粒', '濃厚', '嚼感', '無']
@@ -696,7 +696,7 @@ if 'add_to_fav' not in st.session_state:
 if 'drink_combination' not in st.session_state:
     st.session_state['drink_combination'] = dict()
 
-if st.session_state['check_reminder_status']!="error": # 前面檢查通過之後 才能讓使用者使用generator
+if st.session_state['check_reminder_status']!="": # 原本要求要前段檢查通過才可使用->改為只要有按檢查都可使用
     with st.container():
         st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
         st.markdown("""
