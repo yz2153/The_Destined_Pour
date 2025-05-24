@@ -313,7 +313,7 @@ if option_ingredient != 'NO' and "Topping Number" in selected_type:
             )
             random_topping_number = random.randint(1,int(topping_number_max))
         
-        st.markdown("➡️ The number of toppings on your drink is " + random_topping_number + ".")
+        st.markdown("➡️ The number of toppings on your drink is " + str(random_topping_number) + ".")
 
 
 # 風味 taste         
@@ -438,7 +438,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         if st.session_state['check_reminder_status'] != "":
             st.markdown(
                 """
-                <div style="margin-top: 0px; margin-bottom: 0px; border-left: 0.3rem solid #b19cd9; padding: 1rem; background-color: #f5f0ff; border-radius: 0.5rem; ">
+                <div style="margin-top: 0px; margin-bottom: 4px; border-left: 0.3rem solid #b19cd9; padding: 1rem; background-color: #f5f0ff; border-radius: 0.5rem; ">
                     <strong>✨ Note:</strong><br><br>
                     ◇ If you reselect the customized combination you want, press the “Check” button again before generating your drink.
                 </div>
@@ -474,6 +474,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             )
         
         if st.session_state['check_reminder_status']=="success_12":
+            selected_texture_display = st.session_state['selected_texture_display']
             st.markdown(
                 f"""
                 <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
@@ -722,7 +723,19 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
 
                 # ----- [end] Code completed by withdrawn member Mr. Chan -----
                 
-                st.write("drink_conbination = " + drink_conbination)
+                st.write(drink_conbination)
+
+                if drink_conbination == []:
+                    st.markdown(
+                        """
+                        <div style="border-left: 0.3rem solid orange; padding: 1rem; background-color: #fff7e6; border-radius: 0.5rem;">
+                            <strong>⚠️ Warning: </strong><br><br>
+                            No valid combinations found.
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )        
+                                
 
                 chosen_drink_combination = random.choice(drink_conbination)
                 st.session_state['drink_combination'] = chosen_drink_combination
@@ -783,3 +796,4 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                     <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
                     """, unsafe_allow_html=True
                     )
+                
