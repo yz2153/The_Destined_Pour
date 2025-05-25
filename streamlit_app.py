@@ -5,7 +5,12 @@ import streamlit as st
 
 # 設定頁面的標題與副標題(模式選擇)
 st.title(":cup_with_straw: The Destined Pour")
-st.header("Select the generator mode you want!")
+# st.header("Select the generator mode you want!")
+st.markdown("""
+<h1 style='font-size: 28px; font-weight: 600; margin-bottom: 16px;'>
+    Select the generator mode you want!
+</h1>
+""", unsafe_allow_html=True)
 
 # 初始化 Part1
 
@@ -421,7 +426,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             label_visibility = "collapsed", 
             )
     
-    # 定義隨機+檢查函式：選項前後不搭的話，跳warning 
+    # 定義隨機 + 檢查函式：選項前後不搭的話，跳warning 
     # 如果不加配料的話，random_topping_number==0，所以直接使用random_topping_number (而不是是否加配料的bool)
     def random_texture_and_check(random_topping_number, selected_texture):
         # 要判斷使用者是否不加topping 卻選擇了果粒或嚼感texture
@@ -557,7 +562,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
 
 
 # 一些會用到的emoji： 🎲 ✅ ✔️ ⚠️ 🚨 👈 💸 🔥 🌟 ✨ 🔄 ➡️ 🆗 
-# ----- [start] 接入功能code的必要轉換 -----
+# ----- [start] 接入generator前的設定與轉換 -----
 # 要輸入generator的：
 
 # [OK] price_target要放前面使用者輸入的price值或是隨機的值
@@ -586,7 +591,7 @@ texture_name_dict = dict(zip(texture, texture_name_generator))
 if texture_preference in texture_name_dict:
     texture_preference = texture_name_dict[texture_preference]
 
-# ----- [end] 接入功能code的必要轉換 -----
+# ----- [end] 接入generator前的設定與轉換 -----
 
 # ----- [start] Code completed by withdrawn member Mr. Chan -----
 
@@ -693,7 +698,7 @@ if generator_section == True:
     with st.container():
         # st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
         st.markdown("""
-        <h1 style='font-size: 24px; font-weight: 600; margin-bottom: 16px;'>
+        <h1 style='font-size: 28px; font-weight: 600; margin-bottom: 16px;'>
             Random generator
         </h1>
         """, unsafe_allow_html=True)
@@ -704,14 +709,11 @@ if generator_section == True:
                 return 0 # target沒有指定的狀況下，不用計算差值(difference)
             else:
                 return abs(value - int(target))
-            
-        # calorie_difference = get_difference(total_calories, calorie_target)
-        # price_difference = get_difference(total_price, price_target)
-        # difference_between_goals_and_results = calorie_difference + price_difference
 
         # 將generate功能設定為需要
         with st.form('generator_form', clear_on_submit=False, border=False,):
-            submitted_generator = st.form_submit_button("🎲 Roll the dice! ") 
+            submitted_generator = st.form_submit_button("🎲 Create your own destined pour! ") 
+            # 🎲 Roll the dice!
 
             if submitted_generator: # 如果按下按鈕開始generate
                 # ----- [start] Code completed by withdrawn member Mr. Chan -----
@@ -857,7 +859,7 @@ if generator_section == True:
 
                 # ----- [end] Code completed by withdrawn member Mr. Chan -----
                 
-                st.write(drink_conbination) # 用來檢查generator是否worked -> 完成後須註解掉
+                # st.write(drink_conbination) # 用來檢查generator是否worked -> 完成後須註解掉
 
                 # 將符合初步篩選條件的組合放入pandas的dataframe中
                 df_drink_combination = pd.DataFrame(drink_conbination)
@@ -918,26 +920,53 @@ if generator_section == True:
                                 chosen_drink_combination = df_waiting_list.iloc[random_candidate_loc].to_dict()
 
                     st.session_state['drink_combination'] = chosen_drink_combination
-                    chosen_drink_topping = ""
-                    converted_topping_name = []
-                    chosen_drink_topping_display = ""
-                    chosen_drink_price = chosen_drink_combination['Total Price']
-                    chosen_drink_calories = chosen_drink_combination['Total Calories']
+                    
+                    # 將chosen_drink_combination的drink名稱改名為中英文雙語版本
+                    chosen_drink_drink_name = chosen_drink_combination['Drink']
+                    converted_drink_name = ""
+                    drink_name_generator = ["紅茶", "綠茶", "烏龍茶", "阿華田", "水"]
+                    drink_name_display = ["紅茶 Black tea", "綠茶 Green tea", "烏龍茶 Oolong tea", "阿華田(可可) Ovaltine (Cocoa)", "水 Water"]
+                    drink_name_dict = dict(zip(drink_name_generator, drink_name_display))
+                    if chosen_drink_drink_name in drink_name_dict:
+                        converted_drink_name = drink_name_dict[chosen_drink_drink_name]
+                    chosen_drink_drink_name = converted_drink_name
 
+                    # 將chosen_drink_combination的size名稱改名為中英文雙語版本
+                    chosen_drink_size = chosen_drink_combination['Size']
+                    converted_size_name = ""
+                    size_name_generator = ["中杯", "大杯"]
+                    size_name_display = ["中杯 Medium", "大杯 Large"]
+                    size_name_dict = dict(zip(size_name_generator, size_name_display))
+                    if chosen_drink_size in size_name_dict:
+                        converted_size_name = size_name_dict[chosen_drink_size]
+                    chosen_drink_size = converted_size_name
+
+                    # 將chosen_drink_combination的side名稱改名為中英文雙語版本
+                    chosen_drink_side = chosen_drink_combination['Side']
+                    converted_side_name = ""
+                    side_name_generator = ["優酪", "奶蓋", "奶精", "鮮奶"]
+                    side_name_display = ["優酪 Yogurt", "奶蓋 Milk cap", "奶精 Creamer", "鮮奶 Fresh milk"]
+                    side_name_dict = dict(zip(side_name_generator, side_name_display))
+                    if chosen_drink_side in side_name_dict:
+                        converted_side_name = side_name_dict[chosen_drink_side]
+                    chosen_drink_side = converted_side_name
 
                     # 將chosen_drink_combination的topping名稱改名為中英文雙語版本
                     chosen_drink_topping = chosen_drink_combination['Topping']
-                    topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]    
-                    topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']    
-                    topping_name_dict_reverse = dict(zip(topping_name_generator , topping))
+                    converted_topping_name = []
+                    topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']  
+                    topping_name_display = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]      
+                    
+                    topping_name_dict = dict(zip(topping_name_generator , topping_name_display))
                     for i in chosen_drink_topping:
-                        if i in topping_name_dict_reverse: # 將要置換的新名稱放入converted_topping_name
-                            converted_topping_name.append(topping_name_dict_reverse[i])
+                        if i in topping_name_dict: # 將要置換的新名稱放入converted_topping_name
+                            converted_topping_name.append(topping_name_dict[i])
                         else:
                             converted_topping_name.append()
                     chosen_drink_topping = converted_topping_name #將chosen_drink_topping的內容換成converted_topping_name的內容
 
                     # 設定要display給使用者看的chosen_drink_combination的topping
+                    chosen_drink_topping_display = ""
                     if len(chosen_drink_combination['Topping']) > 0:
                         for i in range((len(chosen_drink_combination['Topping'])-1)):
                             chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[i]) + ', '
@@ -945,53 +974,81 @@ if generator_section == True:
                     if len(chosen_drink_combination['Topping']) == 0:
                         chosen_drink_topping = 'None'
 
+                    chosen_drink_price = chosen_drink_combination['Total Price']
+                    chosen_drink_calories = chosen_drink_combination['Total Calories']
+
                     # 將生成的飲料組合裝成一個dict
                     drink_combination_display = dict()
                     drink_combination_display = {
                         'Random Items': 'Content', 
-                        'Drink': chosen_drink_combination['Drink'],
-                        'Size': chosen_drink_combination['Size'], 
-                        'Topping': chosen_drink_topping_display, 
-                        'Side': chosen_drink_combination['Side'],
+                        '飲料基底 Drink': chosen_drink_drink_name,
+                        '飲料尺寸 Size': chosen_drink_size, 
+                        '特調配料 Side': chosen_drink_side,
+                        '配料 Topping': chosen_drink_topping_display,                         
                     }
 
                     # 將drink_combination_display改以pd.dataframe的形式，儲存在df_drink_combination_display 
                     df_drink_combination_display = pd.DataFrame(drink_combination_display, index=[0])
-                    
+                    cols_display = ['飲料基底 Drink', '飲料尺寸 Size','特調配料 Side','配料 Topping']
+                    df_drink_combination_display = df_drink_combination_display[cols_display]
                     # 將df_drink_combination_display行列互換，儲存於df_drink_combination_display_T
                     df_drink_combination_display_T = df_drink_combination_display.T 
 
-                    st.markdown(f"""
-                    <div style='font-size:20px; font-weight:bold;'>
-                    Formula_of_the_drink
-                    </div>
-                    """, unsafe_allow_html=True) # [store_name] 暫時取消
+                    with st.container(border=True,):
+                        col_destined_pour, col_generator_status = st.columns([6, 1])
 
-                    st.dataframe(
-                        df_drink_combination_display_T, 
-                        # hide_index=True,
-                    )
+                        with col_destined_pour:
+                            # 將標題字樣設為彩色漸層(此設定是參考chatgpt給出的範例)
+                            st.markdown(
+                                """
+                                <div style='
+                                    margin-bottom: 4px;
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    background: linear-gradient(90deg, #FF0000, #FF9900, #FFFF00, #33FF00, #00BFFF, #6A4C93);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    background-clip: text;
+                                    text-fill-color: transparent;
+                                    display: inline-block;
+                                '>
+                                    Your destined pour:
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                        
+                        with col_generator_status:
+                            st.markdown(
+                            ":green-badge[:material/check: Success]"
+                            )
+                        
+                        st.dataframe(df_drink_combination_display_T)
+                        # ------                    
 
-                    # ------
-                    st.markdown(
-                    ":green-badge[:material/check: Success]"
-                    )
-                    
-                    col_price, col_calories = st.columns(2) # 這邊的內容可以考慮改用st.metric呈現
+                        col_price, col_calories = st.columns(2) # 數值可改用st.metric呈現
 
-                    with col_price:
-                        # 這邊之後要加上產出飲料的價位
-                        st.markdown(f"""
-                        <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
-                        <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_price} </p>
-                        """, unsafe_allow_html=True
-                        )
+                        with col_price: # 在這個column中顯示飲料的價位
+                            st.markdown(f"""
+                            <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
+                            """, unsafe_allow_html=True
+                            )
+                            # <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_price} </p>
+                            st.metric(
+                                "", 
+                                chosen_drink_price, 
+                                label_visibility="collapsed",
+                            )
 
-                    with col_calories:
-                        # 這邊之後要加上產出飲料的熱量
-                        st.markdown(f"""
-                        <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
-                        <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
-                        """, unsafe_allow_html=True
-                        )
+                        with col_calories: # 在這個column中顯示飲料的熱量
+                            st.markdown(f"""
+                            <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
+                            """, unsafe_allow_html=True
+                            )
+                            # <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
+                            st.metric(
+                                "",
+                                chosen_drink_calories, 
+                                label_visibility="collapsed",
+                            )
                 
