@@ -863,23 +863,25 @@ if generator_section == True:
 
                 # 將符合初步篩選條件的組合放入pandas的dataframe中
                 df_drink_combination = pd.DataFrame(drink_conbination)
-                # 按 Difference Score 由小到大排序
-                df_drink_combination_sorted = df_drink_combination.sort_values('Difference Score', ascending=True).reset_index(drop=True)
-                # 計算每一組與第一組(第零列)的Difference Score的差值
-                df_drink_combination_sorted['Difference Score from Combination 0'] = df_drink_combination_sorted['Difference Score'] - df_drink_combination_sorted.iloc[0]['Difference Score']
 
                 if drink_conbination == []: # 如果生成不出組合，顯示warning
                     st.markdown(
                         """
                         <div style="border-left: 0.3rem solid orange; padding: 1rem; background-color: #fff7e6; border-radius: 0.5rem;">
                             <strong>⚠️ Warning: </strong><br><br>
-                            No valid combinations found.
-                        </div>ination_sorted.iloc[0].to_dict()
+                            ◇ No valid combinations found.<br>
+                            ◇ If the valid combination is not generated, you can try to create it again, it is possible that the currently used parameters did not generate the result successfully.
+                        </div>
                         """,
                         unsafe_allow_html=True
                     )        
 
                 if drink_conbination != []: # 如果有正常生成出結果 -> 顯示生成的結果
+                    # 按 Difference Score 由小到大排序
+                    df_drink_combination_sorted = df_drink_combination.sort_values('Difference Score', ascending=True).reset_index(drop=True)
+                    # 計算每一組與第一組(第零列)的Difference Score的差值
+                    df_drink_combination_sorted['Difference Score from Combination 0'] = df_drink_combination_sorted['Difference Score'] - df_drink_combination_sorted.iloc[0]['Difference Score']
+                    
                     chosen_drink_combination = dict() # 將chosen_drink_combination設為empty dict
                     df_waiting_list = pd.DataFrame() # 將df_waiting_list設為empty pd.dataframe
                     df_waiting_list2 = pd.DataFrame() # 將df_waiting_list2設為empty pd.dataframe
