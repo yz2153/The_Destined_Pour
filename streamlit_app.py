@@ -713,7 +713,7 @@ if generator_section == True:
         # 將generate功能設定為需要
         with st.form('generator_form', clear_on_submit=False, border=False,):
             submitted_generator = st.form_submit_button("🎲 Create your own destined pour! ") 
-            # 🎲 Roll the dice!
+            # 🎲 Roll the dice! 
 
             if submitted_generator: # 如果按下按鈕開始generate
                 # ----- [start] Code completed by withdrawn member Mr. Chan -----
@@ -1051,4 +1051,14 @@ if generator_section == True:
                                 chosen_drink_calories, 
                                 label_visibility="collapsed",
                             )
+
+                        st.markdown(
+                            """
+                            <div style="margin-top: 6px; margin-bottom: 4px; border-left: 0.3rem solid #b19cd9; padding: 1rem; background-color: #f5f0ff; border-radius: 0.5rem; ">
+                                <strong>✨ Note:</strong><br><br>
+                                ◇ If you want to recreate the destined pour, just click the “🎲 Create your own destined pour! ” button again.
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
                 
