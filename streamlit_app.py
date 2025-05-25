@@ -11,26 +11,32 @@ st.header("Select the generator mode you want!")
 # 初始化 Part1
  
 # 重置三種關於模式的限制的st.session_state
+option_calories = 'NO'
 if 'calories_customized' not in st.session_state:
     st.session_state['calories_customized'] = 'NO'
+option_price = 'NO'
 if 'price_customized' not in st.session_state:
     st.session_state['price_customized'] = 'NO'
+option_ingredient = 'NO'
 if 'ingredient_customized' not in st.session_state:
     st.session_state['ingredient_customized'] = 'NO'
 
 # 重置calories相關的st.session_state (slider/type)
+calorie_target = "無"
 if "calories_value" not in st.session_state:
     st.session_state['calories_value'] = 500
-calorie_target = 500
+
 
 # 重置price相關的st.session_state (slider/type)
+price_target = "無"
 if "price_value" not in st.session_state:
     st.session_state['price_value'] = 70
-price_target = 70
 
 # 重置關於口味與配料的st.session_state
+selected_type = ["Topping", "Taste", "Texture"]
 if 'selected_type' not in st.session_state: # 重置segmented_control
     st.session_state['selected_type'] = ["Topping", "Taste", "Texture"]
+whether_to_add_topping = ":rainbow[YES]"
 if 'add_topping' not in st.session_state:
     st.session_state['add_topping'] = ":rainbow[YES]"
 
@@ -38,11 +44,14 @@ if 'add_topping' not in st.session_state:
 #     st.session_state['selected_topping'] = ["焙烏龍茶凍 Oolong Tea Jelly"]
 if 'topping_number_max' not in st.session_state:
     st.session_state['topping_number_max'] = 1
+if 'random_topping_number' not in st.session_state:
+    st.session_state['random_topping_number'] = "無"
+topping_set = []
 
 if 'selected_taste' not in st.session_state:
     st.session_state['selected_taste'] = []   
 if 'random_taste' not in st.session_state: 
-    st.session_state['random_taste'] = ""
+    st.session_state['random_taste'] = "無"
 if 'selected_taste_display' not in st.session_state: 
     st.session_state['selected_taste_display'] = []
 
@@ -51,8 +60,13 @@ if 'selected_texture' not in st.session_state:
 if 'selected_texture_display' not in st.session_state: 
     st.session_state['selected_texture_display'] = []
 if 'random_texture' not in st.session_state: 
-    st.session_state['random_texture'] = ""
+    st.session_state['random_texture'] = "不限"
 
+if 'invalid_texture' not in st.session_state:
+    st.session_state['invalid_texture'] = False
+submitted_check_status = True
+if 'submitted_check_status' not in st.session_state: 
+    st.session_state['submitted_check_status'] = True
 if 'check_reminder_status' not in st.session_state: 
     st.session_state['check_reminder_status'] = ""
 
@@ -125,7 +139,6 @@ if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO
 else: 
     st.markdown("✔️ You selected: " + badge_calories + badge_price + badge_ingredient)
 
-st.divider()
 
 # --- option_calories 的區塊 ---
 def update_from_calories_slider():
@@ -134,9 +147,10 @@ def update_from_calories_number():
     st.session_state["calories_value"] = st.session_state["calories_number_value"]
 
 if option_calories == "NO":
-    calorie_target = random.randint(0, 2000)
+    calorie_target = "無"
 
 if option_calories != "NO":
+    st.divider()
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>1️⃣ Setting Target Calories for Your Drink</p>", unsafe_allow_html=True)
     
     col_calories_slider, col_calories_numberinput = st.columns([6, 1])
@@ -168,7 +182,6 @@ if option_calories != "NO":
     Your target calorie count for your drink is <span style='color: SlateBlue; font-weight: bold;'>{calorie_target}</span> calories.
     """, unsafe_allow_html=True)
 
-    st.divider()
 # --- option_calories 的區塊 ---
 
 # --- option_price 的區塊 ---
@@ -178,9 +191,10 @@ def update_from_price_number():
     st.session_state["price_value"] = st.session_state["price_number_value"]
 
 if option_price == 'NO':
-    price_target = random.randint(0,1000)
+    price_target = "無"
 
 if option_price != 'NO':
+    st.divider()
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>2️⃣ Setting Your Budget</p>", unsafe_allow_html=True)
     
     col_price_slider, col_price_numberinput = st.columns([6, 1])
@@ -212,12 +226,11 @@ if option_price != 'NO':
     Your budget is <span style='color: SlateBlue; font-weight: bold;'>{price_target}</span> dollars.
     """, unsafe_allow_html=True)
 
-    st.divider()
 # --- option_price 的區塊 ---
 
 # --- option_ingredient 的區塊 ---
 def update_customization_selection(): # 設定更新selected_type的session_state
-    st.sessionstate['selected_type'] = st.session_state['customized_selection']
+    st.session_state['selected_type'] = st.session_state['customized_selection']
 def update_whether_to_add_topping():
     st.session_state['whether_to_add_topping'] = st.session_state['add_topping']
 
@@ -240,11 +253,20 @@ taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea 
 texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
 
 if option_ingredient == 'NO':
-    random_topping_number = random.randint(0, 5)
-    random_taste = str(random.sample(taste, 1))
-    random_texture = str(random.sample(texture, 1))
-    invalid_textureb = False
-    check_reminder_status = "success_3" # -> 視為全選的狀況 
+    random_topping_number = "無"
+    st.session_state['random_topping_number'] = random_topping_number
+    # random_taste = str(random.sample(taste, 1))
+    # st.session_state['random_taste'] = random_taste
+    # if random_topping_number==0:
+    #     random_texture = str(random.sample(["濃厚 Thick", "無"], 1))
+    #     st.session_state['random_texture'] = random_texture
+    # else:
+    #     random_texture = str(random.sample(texture, 1))
+    #     st.session_state['random_texture'] = random_texture
+    invalid_texture = False
+    st.session_state['invalid_texture'] = invalid_texture
+    check_reminder_status = "success_3" # -> 視為texture全選的狀況 
+    st.session_state['check_reminder_status'] = check_reminder_status
 
 # 選擇要客製化的Ingredient項目 ["Topping", "Taste", "Texture"]
 if option_ingredient != 'NO': 
@@ -267,14 +289,25 @@ if option_ingredient != 'NO':
         )
 
 if option_ingredient != 'NO':
+    st.divider()
     if "Topping Number" not in selected_type:
-        random_topping_number = random.randint(0, 5)
+        random_topping_number = "無"
+        st.session_state['random_topping_number'] = random_topping_number
+        topping_set = []
     if "Taste" not in selected_type:
         random_taste = str(random.sample(taste, 1))
+        st.session_state['random_taste'] = random_taste
     if "Texture" not in selected_type:
-        random_texture =str( random.sample(texture, 1))
-        invalid_textureb = False
-        check_reminder_status = "success_3" # -> 視為全選的狀況 
+        if random_topping_number==0:
+            random_texture = str(random.sample(["濃厚 Thick", "無"], 1))
+            st.session_state['random_texture'] = random_texture
+        else:
+            random_texture = str(random.sample(texture, 1))
+            st.session_state['random_texture'] = random_texture
+        invalid_texture = False
+        st.session_state['invalid_texture'] = invalid_texture
+        check_reminder_status = "success_3" # -> 視為texture全選的狀況 
+        st.session_state['check_reminder_status'] = check_reminder_status
 
 # 加料 Topping
 if option_ingredient != 'NO' and "Topping Number" in selected_type:
@@ -355,6 +388,8 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
 
 # 口感 Texture
 if option_ingredient != 'NO' and "Texture" in selected_type:
+    submitted_check_status = False
+    st.session_state['submitted_check_status'] = False
     with st.container(border=True,):
         st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ③ Select the texture of the drink you prefer</p>", unsafe_allow_html=True)
         st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
@@ -407,6 +442,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                     check_reminder_status = "success_12"
                 if len(selected_texture) == 3:
                     check_reminder_status = "success_3"
+                    random_texture = '不限'
     
         return random_texture, invalid_texture, selected_texture_display, check_reminder_status
         
@@ -420,6 +456,10 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             st.markdown("<p style='margin-top: 0px; margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ Please make sure your customized combination is valid before generating. </p>", unsafe_allow_html=True)    
         
         if submitted_check:
+            submitted_check_status = True
+            st.session_state['submitted_check_status'] = submitted_check_status
+
+        if st.session_state['submitted_check_status'] == True:
             random_texture, invalid_texture, selected_texture_display, check_reminder_status = random_texture_and_check(random_topping_number, selected_texture)
             st.session_state['random_texture'] = random_texture
             st.session_state['selected_texture_display'] = selected_texture_display
@@ -435,7 +475,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 st.markdown("🚨 Please ensure that your selection is valid. ")
         
     with st.container():
-        if st.session_state['check_reminder_status'] != "":
+        if st.session_state['check_reminder_status'] != "" and st.session_state['submitted_check_status'] == True:
             st.markdown(
                 """
                 <div style="margin-top: 0px; margin-bottom: 4px; border-left: 0.3rem solid #b19cd9; padding: 1rem; background-color: #f5f0ff; border-radius: 0.5rem; ">
@@ -461,7 +501,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 unsafe_allow_html=True
             )        
             
-        if st.session_state['check_reminder_status']=="success_0":
+        if st.session_state['check_reminder_status']=="success_0" and st.session_state['submitted_check_status'] == True:
             st.markdown(
                 f"""
                 <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
@@ -473,7 +513,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 unsafe_allow_html=True
             )
         
-        if st.session_state['check_reminder_status']=="success_12":
+        if st.session_state['check_reminder_status']=="success_12" and st.session_state['submitted_check_status'] == True:
             selected_texture_display = st.session_state['selected_texture_display']
             st.markdown(
                 f"""
@@ -486,7 +526,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 unsafe_allow_html=True
             )
 
-        if st.session_state['check_reminder_status']=="success_3":
+        if st.session_state['check_reminder_status']=="success_3" and st.session_state['submitted_check_status'] == True:
             st.markdown(
                 f"""
                 <div style="border-left: 0.3rem solid green; padding: 1rem; background-color: #e6ffe6; border-radius: 0.5rem;">
@@ -497,10 +537,9 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 """,
                 unsafe_allow_html=True
             )     
-    st.divider()               
+
 
 # 一些會用到的emoji： 🎲 ✅ ✔️ ⚠️ 🚨 👈 💸 🔥 🌟 ✨ 🔄 ➡️ 🆗 
-
 # ----- [start] 接入功能code的必要轉換 -----
 # 要輸入generator的：
 
@@ -524,7 +563,7 @@ if taste_preference in taste_name_dict:
     taste_preference = taste_name_dict[taste_preference]
 
 texture_preference = st.session_state['random_texture'] # 已完成名稱配對
-# texture 改名 ('無'不用改名)
+# texture 改名 ('無'或'不限'不用改名)
 texture_name_generator = ['果粒', '濃厚', '嚼感']
 texture_name_dict = dict(zip(texture, texture_name_generator))
 if texture_preference in texture_name_dict:
@@ -596,8 +635,9 @@ if 'drink_combination' not in st.session_state:
     st.session_state['drink_combination'] = dict()
 
 if st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]: # 前面檢查通過之後 才能讓使用者使用generator
+    st.divider() 
     with st.container():
-        st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
+        # st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
         st.markdown("""
         <h1 style='font-size: 24px; font-weight: 600; margin-bottom: 16px;'>
             Random generator
@@ -633,7 +673,7 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                     taste_preference == '無') and
                                     (drink['Texture'] == texture_preference or
                                     (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo))
-                                    or texture_preference=='無')
+                                    or texture_preference=='不限')
                                     ): drink_conbination.append({
                                         'Drink': drink['Name'],
                                         'Size' : '中杯',
@@ -642,11 +682,9 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                         'Total Calories': total_calories,
                                         'Total Price': total_price
                                     })
-                                    
-                                else:
-                                    total_calories = int(drink['Cal_med']) + topping_calories + int(side['Cal_med'])
-                                    total_price = int(drink['Price_med']) + topping_price + int(side['Price_med'])
-
+                            else:
+                                total_calories = int(drink['Cal_med']) + topping_calories + int(side['Cal_med'])
+                                total_price = int(drink['Price_med']) + topping_price + int(side['Price_med'])
                             if (
                                 total_calories <= calorie_target and
                                 total_price <= price_target and
@@ -657,7 +695,7 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                 (drink['Texture'] == texture_preference or
                                 (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
                                 side['Texture'] == texture_preference or
-                                texture_preference == '無')
+                                texture_preference == '不限')
                             ): drink_conbination.append({
                                     'Drink': drink['Name'],
                                     'Size' : '中杯',
@@ -676,7 +714,6 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                 topping_names = topping_set + [df_filtered.iloc[t]['Name'] for t in combo]
                                 drink = df_drink.iloc[i]
                                 side = df_side.iloc[j-1]
-
                                 if (j == 0):
                                     total_calories = int(drink['Cal_big']) + topping_calories
                                     total_price = int(drink['Price_big']) + topping_price
@@ -688,7 +725,7 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                     taste_preference == '無') and
                                     (drink['Texture'] == texture_preference or
                                     (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
-                                    texture_preference == '無')
+                                    texture_preference == '不限')
                                 ): drink_conbination.append({
                                         'Drink': drink['Name'],
                                         'Size' : '大杯',
@@ -697,29 +734,28 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                                         'Total Calories': total_calories,
                                         'Total Price': total_price
                                     })
-                                        
-                                else:
-                                    total_calories = int(drink['Cal_big']) + topping_calories + int(side['Cal_big'])
-                                    total_price = int(drink['Price_big']) + topping_price + int(side['Price_big'])
-                                if (
-                                    total_calories <= calorie_target and
-                                    total_price <= price_target and
-                                    (drink['Taste'] == taste_preference or
-                                    (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
-                                    side['Taste'] == taste_preference or
-                                    taste_preference == '無') and
-                                    (drink['Texture'] == texture_preference or
-                                    (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
-                                    side['Texture'] == texture_preference or
-                                    texture_preference == '無')
-                                ): drink_conbination.append({
-                                        'Drink': drink['Name'],
-                                        'Size' : '大杯',
-                                        'Topping': topping_names,
-                                        'Side': side['Name'],
-                                        'Total Calories': total_calories,
-                                        'Total Price': total_price
-                                    })
+                        else:
+                            total_calories = int(drink['Cal_big']) + topping_calories + int(side['Cal_big'])
+                            total_price = int(drink['Price_big']) + topping_price + int(side['Price_big'])
+                        if (
+                            total_calories <= calorie_target and
+                            total_price <= price_target and
+                            (drink['Taste'] == taste_preference or
+                            (any(str(df_topping.iloc[t]['Taste']).strip() == taste_preference for t in combo)) or
+                            side['Taste'] == taste_preference or
+                            taste_preference == '無') and
+                            (drink['Texture'] == texture_preference or
+                            (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
+                            side['Texture'] == texture_preference or
+                            texture_preference == '不限')
+                        ): drink_conbination.append({
+                                'Drink': drink['Name'],
+                                'Size' : '大杯',
+                                'Topping': topping_names,
+                                'Side': side['Name'],
+                                'Total Calories': total_calories,
+                                'Total Price': total_price
+                            })
 
                 # ----- [end] Code completed by withdrawn member Mr. Chan -----
                 
@@ -739,20 +775,38 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
 
                 chosen_drink_combination = random.choice(drink_conbination)
                 st.session_state['drink_combination'] = chosen_drink_combination
-                chosen_drink_combination_topping = ''
+                chosen_drink_topping = ""
+                converted_topping_name = []
+                chosen_drink_topping_display = ""
                 chosen_drink_price = chosen_drink_combination['Total Price']
                 chosen_drink_calories = chosen_drink_combination['Total Calories']
 
-                for i in range((len(chosen_drink_combination['Topping'])-1)):
-                    chosen_drink_combination_topping = chosen_drink_combination_topping + str(chosen_drink_combination['Topping'][i]) + ', '
-                chosen_drink_combination_topping = chosen_drink_combination_topping + str(chosen_drink_combination['Topping'][-1])
+                chosen_drink_topping = chosen_drink_combination['Topping']
+                topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]    
+                topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']    
+                topping_name_dict_reverse = dict(zip(topping_name_generator , topping))
+                for i in chosen_drink_topping:
+                    if i in topping_name_dict_reverse:
+                        converted_topping_name.append(topping_name_dict_reverse[i])
+                    else:
+                        converted_topping_name.append(i)
+                
+                chosen_drink_topping = converted_topping_name
+
+
+                if len(chosen_drink_combination['Topping']) > 0:
+                    for i in range((len(chosen_drink_combination['Topping'])-1)):
+                        chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[i]) + ', '
+                    chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[-1])
+                if len(chosen_drink_combination['Topping']) == 0:
+                    chosen_drink_topping = 'None'
 
                 drink_combination_display = dict()
                 drink_combination_display = {
                     'Random Items': 'Content', 
                     'Drink': chosen_drink_combination['Drink'],
                     'Size': chosen_drink_combination['Size'], 
-                    'Topping': chosen_drink_combination_topping, 
+                    'Topping': chosen_drink_topping_display, 
                     'Side': chosen_drink_combination['Side'],
                 }
 
