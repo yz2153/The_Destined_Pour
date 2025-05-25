@@ -3,15 +3,17 @@ import random
 from itertools import combinations
 import streamlit as st
 
-
 # 設定頁面的標題與副標題(模式選擇)
 st.title(":cup_with_straw: The Destined Pour")
 st.header("Select the generator mode you want!")
 
 # 初始化 Part1
- 
-# 重置三種關於模式的限制的st.session_state
-option_calories = 'NO'
+
+# st.session_state的用途是紀錄發生過的事件，因為streamlit預設在每次按下新的互動之後，會洗去過去的事件的紀錄
+# 因此在遇到有連貫性的事件時，我們需要用st.session_state紀錄並更新狀態 
+
+# 重置三種關於模式客製化的變數和st.session_state # 預設為不客製化
+option_calories = 'NO' # 
 if 'calories_customized' not in st.session_state:
     st.session_state['calories_customized'] = 'NO'
 option_price = 'NO'
@@ -21,58 +23,60 @@ option_ingredient = 'NO'
 if 'ingredient_customized' not in st.session_state:
     st.session_state['ingredient_customized'] = 'NO'
 
-# 重置calories相關的st.session_state (slider/type)
-calorie_target = "無"
+# 重置calories相關的變數和st.session_state (slider/type)
+calorie_target = "無" # -> 相當於沒有限制，由生成器隨機
 if "calories_value" not in st.session_state:
-    st.session_state['calories_value'] = 500
+    st.session_state['calories_value'] = 500 # 如果使用者想客製化這個項目，default是這個值
 
 
-# 重置price相關的st.session_state (slider/type)
-price_target = "無"
+# 重置price相關的變數和st.session_state (slider/type)
+price_target = "無" # -> 相當於沒有限制，由生成器隨機 
 if "price_value" not in st.session_state:
-    st.session_state['price_value'] = 70
+    st.session_state['price_value'] = 70 # 如果使用者想客製化這個項目，default是這個值
 
 # 重置關於口味與配料的st.session_state
-selected_type = ["Topping", "Taste", "Texture"]
+selected_type = ["Topping", "Taste", "Texture"] # 如果使用者想客製化這個項目，default是全選
 if 'selected_type' not in st.session_state: # 重置segmented_control
-    st.session_state['selected_type'] = ["Topping", "Taste", "Texture"]
-whether_to_add_topping = ":rainbow[YES]"
+    st.session_state['selected_type'] = ["Topping", "Taste", "Texture"] # 如果使用者想客製化這個項目，default是全選
+whether_to_add_topping = ":rainbow[YES]" # 如果使用者想客製化這個項目，default是要加入topping
 if 'add_topping' not in st.session_state:
-    st.session_state['add_topping'] = ":rainbow[YES]"
+    st.session_state['add_topping'] = ":rainbow[YES]" # 如果使用者想客製化這個項目，default是要加入topping
 
 # if 'selected_topping' not in st.session_state:
 #     st.session_state['selected_topping'] = ["焙烏龍茶凍 Oolong Tea Jelly"]
 if 'topping_number_max' not in st.session_state:
     st.session_state['topping_number_max'] = 1
 if 'random_topping_number' not in st.session_state:
-    st.session_state['random_topping_number'] = "無"
-topping_set = []
+    st.session_state['random_topping_number'] = "無" # -> 相當於沒有限制，由生成器隨機 
+topping_set = [] # 目前取消客製化加入指定topping的功能，因此將此變數設為empty list
 
 if 'selected_taste' not in st.session_state:
-    st.session_state['selected_taste'] = []   
+    st.session_state['selected_taste'] = [] # default為empty list    
 if 'random_taste' not in st.session_state: 
-    st.session_state['random_taste'] = "無"
+    st.session_state['random_taste'] = "無" # -> 相當於沒有限制，由生成器隨機 
 if 'selected_taste_display' not in st.session_state: 
-    st.session_state['selected_taste_display'] = []
+    st.session_state['selected_taste_display'] = [] # default為empty list
 
 if 'selected_texture' not in st.session_state:
-    st.session_state['selected_texture'] = [] 
+    st.session_state['selected_texture'] = [] # default為empty list
 if 'selected_texture_display' not in st.session_state: 
-    st.session_state['selected_texture_display'] = []
+    st.session_state['selected_texture_display'] = [] # default為empty list
 if 'random_texture' not in st.session_state: 
-    st.session_state['random_texture'] = "不限"
+    st.session_state['random_texture'] = "不限" # -> 相當於沒有限制，由生成器隨機；"無"代表的是希望飲料的texture是"無"屬性的
 
 if 'invalid_texture' not in st.session_state:
-    st.session_state['invalid_texture'] = False
-submitted_check_status = True
+    st.session_state['invalid_texture'] = False # default為通過invalid_texture檢查
+
+submitted_check_status = True # default為有按下按鈕（因為模式為完全random時，也要視同已經檢查過invalid_texture，允許進行下一步的generate）
 if 'submitted_check_status' not in st.session_state: 
-    st.session_state['submitted_check_status'] = True
+    st.session_state['submitted_check_status'] = True # default為有按下按鈕
+
 if 'check_reminder_status' not in st.session_state: 
-    st.session_state['check_reminder_status'] = ""
+    st.session_state['check_reminder_status'] = "" # default為""，代表沒有按過按鈕 (通過的代號名稱會有sucess字樣)
 
 
 # def用來處理calories功能的開關的function
-def calories_on_change():
+def calories_on_change(): 
     st.session_state['calories_customized'] = st.session_state["calories_temp"]
     return None
 
@@ -116,7 +120,7 @@ option_ingredient = st.radio(
     horizontal=True,
 )
 
-
+# 設定三種客製化模式的代表badge
 if st.session_state['calories_customized'] != 'NO':
     badge_calories = ':orange-badge[Calories]'
 else:
@@ -133,7 +137,7 @@ else:
         badge_ingredient = ''
 
 
-# 顯示目前選擇的模式
+# 以markdown搭配badge顯示目前選擇的模式
 if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO':
     st.markdown("✔️ You selected: :violet-badge[Random generator]")
 else: 
@@ -141,21 +145,23 @@ else:
 
 
 # --- option_calories 的區塊 ---
+# calories_value代表的是最終數值，calories_slider_value與calories_number_value代表的是從不同種輸入模式輸入的數值
+# 設定以下兩個functions，用來同步兩種輸入方式的顯示數值
 def update_from_calories_slider():
     st.session_state["calories_value"] = st.session_state["calories_slider_value"]
 def update_from_calories_number():
     st.session_state["calories_value"] = st.session_state["calories_number_value"]
 
-if option_calories == "NO":
+if option_calories == "NO": # 假如使用者不客製化飲料的熱量 -> 將calorie_target設定為"無"(代表沒有限制)
     calorie_target = "無"
 
 if option_calories != "NO":
     st.divider()
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>1️⃣ Setting Target Calories for Your Drink</p>", unsafe_allow_html=True)
     
-    col_calories_slider, col_calories_numberinput = st.columns([6, 1])
+    col_calories_slider, col_calories_numberinput = st.columns([6, 1]) # 設定一組columns，左寬右窄，左邊放slider，右邊放number_input
 
-    with col_calories_slider:
+    with col_calories_slider: # 設定左邊的column
         st.slider(
             "calories_slider",
             min_value=0,
@@ -166,7 +172,7 @@ if option_calories != "NO":
             label_visibility = "collapsed", 
         )
 
-    with col_calories_numberinput:
+    with col_calories_numberinput: # 設定右邊的column
         st.number_input(
             "calories_numberinput",
             min_value=0,
@@ -185,21 +191,23 @@ if option_calories != "NO":
 # --- option_calories 的區塊 ---
 
 # --- option_price 的區塊 ---
+# price_value代表的是最終數值，price_slider_value與price_number_value代表的是從不同種輸入模式輸入的數值
+# 設定以下兩個functions，用來同步兩種輸入方式的顯示數值
 def update_from_price_slider():
     st.session_state["price_value"] = st.session_state["price_slider_value"]
 def update_from_price_number():
     st.session_state["price_value"] = st.session_state["price_number_value"]
 
-if option_price == 'NO':
+if option_price == 'NO': # 假如使用者不客製化飲料的價錢 -> 將price_target設定為"無"(代表沒有限制)
     price_target = "無"
 
 if option_price != 'NO':
     st.divider()
     st.markdown("<p style='font-size:20px; color:DarkMagenta; font-weight:bold;'>2️⃣ Setting Your Budget</p>", unsafe_allow_html=True)
     
-    col_price_slider, col_price_numberinput = st.columns([6, 1])
+    col_price_slider, col_price_numberinput = st.columns([6, 1]) # 設定一組columns，左寬右窄，左邊放slider，右邊放number_input
     
-    with col_price_slider:
+    with col_price_slider: # 設定左邊的column
         st.slider(
             "price_slider",
             min_value=0,
@@ -210,7 +218,7 @@ if option_price != 'NO':
             label_visibility = "collapsed", 
         )
 
-    with col_price_numberinput:
+    with col_price_numberinput: # 設定右邊的column
         st.number_input(
             "price_numberinput",
             min_value=0,
@@ -255,14 +263,10 @@ texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
 if option_ingredient == 'NO':
     random_topping_number = "無"
     st.session_state['random_topping_number'] = random_topping_number
-    # random_taste = str(random.sample(taste, 1))
-    # st.session_state['random_taste'] = random_taste
-    # if random_topping_number==0:
-    #     random_texture = str(random.sample(["濃厚 Thick", "無"], 1))
-    #     st.session_state['random_texture'] = random_texture
-    # else:
-    #     random_texture = str(random.sample(texture, 1))
-    #     st.session_state['random_texture'] = random_texture
+    random_taste = "無"
+    st.session_state['random_taste'] = random_taste
+    random_texture = "不限"
+    st.session_state['random_texture'] = random_texture
     invalid_texture = False
     st.session_state['invalid_texture'] = invalid_texture
     check_reminder_status = "success_3" # -> 視為texture全選的狀況 
@@ -293,17 +297,12 @@ if option_ingredient != 'NO':
     if "Topping Number" not in selected_type:
         random_topping_number = "無"
         st.session_state['random_topping_number'] = random_topping_number
-        topping_set = []
     if "Taste" not in selected_type:
-        random_taste = str(random.sample(taste, 1))
+        random_taste = "無"
         st.session_state['random_taste'] = random_taste
     if "Texture" not in selected_type:
-        if random_topping_number==0:
-            random_texture = str(random.sample(["濃厚 Thick", "無"], 1))
-            st.session_state['random_texture'] = random_texture
-        else:
-            random_texture = str(random.sample(texture, 1))
-            st.session_state['random_texture'] = random_texture
+        random_texture = "不限"
+        st.session_state['random_texture'] = random_texture
         invalid_texture = False
         st.session_state['invalid_texture'] = invalid_texture
         check_reminder_status = "success_3" # -> 視為texture全選的狀況 
@@ -390,6 +389,9 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
 if option_ingredient != 'NO' and "Texture" in selected_type:
     submitted_check_status = False
     st.session_state['submitted_check_status'] = False
+    check_reminder_status = ""
+    st.session_state['check_reminder_status'] = check_reminder_status
+
     with st.container(border=True,):
         st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ③ Select the texture of the drink you prefer</p>", unsafe_allow_html=True)
         st.markdown("<p style='margin-bottom: 0px; font-size:12px; color:DarkGray; font-weight:bold;'>◇ We will randomly select a texture of your selection to be used as a reference for the generator.</p>", unsafe_allow_html=True)
@@ -629,10 +631,10 @@ topping_price_initial_big = sum(int(row['Price_big']) for _, row in initial_topp
 # 初始化 Part2
 if 'dice_rolled' not in st.session_state:
     st.session_state['dice_rolled'] = False
-if 'add_to_fav' not in st.session_state:
-    st.session_state['add_to_fav'] = False
 if 'drink_combination' not in st.session_state:
     st.session_state['drink_combination'] = dict()
+# if 'add_to_fav' not in st.session_state:
+#     st.session_state['add_to_fav'] = False
 
 if st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]: # 前面檢查通過之後 才能讓使用者使用generator
     st.divider() 
@@ -643,8 +645,8 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
             Random generator
         </h1>
         """, unsafe_allow_html=True)
-        # st.header("Random generator")
         
+        # 將generate功能設定為需要
         with st.form('generator_form', clear_on_submit=False, border=False,):
             submitted_generator = st.form_submit_button("🎲 Roll the dice! ") 
 
@@ -759,9 +761,9 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
 
                 # ----- [end] Code completed by withdrawn member Mr. Chan -----
                 
-                st.write(drink_conbination)
+                st.write(drink_conbination) # 用來檢查generator是否worked
 
-                if drink_conbination == []:
+                if drink_conbination == []: # 如果生成不出組合，顯示warning
                     st.markdown(
                         """
                         <div style="border-left: 0.3rem solid orange; padding: 1rem; background-color: #fff7e6; border-radius: 0.5rem;">
@@ -772,82 +774,82 @@ if st.session_state['check_reminder_status'] in ["success_0", "success_12", "suc
                         unsafe_allow_html=True
                     )        
                                 
+                if drink_conbination != []: # 如果有正常生成出結果 -> 顯示生成的結果
+                    chosen_drink_combination = random.choice(drink_conbination)
+                    st.session_state['drink_combination'] = chosen_drink_combination
+                    chosen_drink_topping = ""
+                    converted_topping_name = []
+                    chosen_drink_topping_display = ""
+                    chosen_drink_price = chosen_drink_combination['Total Price']
+                    chosen_drink_calories = chosen_drink_combination['Total Calories']
 
-                chosen_drink_combination = random.choice(drink_conbination)
-                st.session_state['drink_combination'] = chosen_drink_combination
-                chosen_drink_topping = ""
-                converted_topping_name = []
-                chosen_drink_topping_display = ""
-                chosen_drink_price = chosen_drink_combination['Total Price']
-                chosen_drink_calories = chosen_drink_combination['Total Calories']
-
-                chosen_drink_topping = chosen_drink_combination['Topping']
-                topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]    
-                topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']    
-                topping_name_dict_reverse = dict(zip(topping_name_generator , topping))
-                for i in chosen_drink_topping:
-                    if i in topping_name_dict_reverse:
-                        converted_topping_name.append(topping_name_dict_reverse[i])
-                    else:
-                        converted_topping_name.append(i)
-                
-                chosen_drink_topping = converted_topping_name
+                    chosen_drink_topping = chosen_drink_combination['Topping']
+                    topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]    
+                    topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']    
+                    topping_name_dict_reverse = dict(zip(topping_name_generator , topping))
+                    for i in chosen_drink_topping:
+                        if i in topping_name_dict_reverse:
+                            converted_topping_name.append(topping_name_dict_reverse[i])
+                        else:
+                            converted_topping_name.append()
+                    
+                    chosen_drink_topping = converted_topping_name
 
 
-                if len(chosen_drink_combination['Topping']) > 0:
-                    for i in range((len(chosen_drink_combination['Topping'])-1)):
-                        chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[i]) + ', '
-                    chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[-1])
-                if len(chosen_drink_combination['Topping']) == 0:
-                    chosen_drink_topping = 'None'
+                    if len(chosen_drink_combination['Topping']) > 0:
+                        for i in range((len(chosen_drink_combination['Topping'])-1)):
+                            chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[i]) + ', '
+                        chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[-1])
+                    if len(chosen_drink_combination['Topping']) == 0:
+                        chosen_drink_topping = 'None'
 
-                drink_combination_display = dict()
-                drink_combination_display = {
-                    'Random Items': 'Content', 
-                    'Drink': chosen_drink_combination['Drink'],
-                    'Size': chosen_drink_combination['Size'], 
-                    'Topping': chosen_drink_topping_display, 
-                    'Side': chosen_drink_combination['Side'],
-                }
+                    drink_combination_display = dict()
+                    drink_combination_display = {
+                        'Random Items': 'Content', 
+                        'Drink': chosen_drink_combination['Drink'],
+                        'Size': chosen_drink_combination['Size'], 
+                        'Topping': chosen_drink_topping_display, 
+                        'Side': chosen_drink_combination['Side'],
+                    }
 
-                df_drink_combination_display = pd.DataFrame(drink_combination_display, index=[0])
-                df_drink_combination_display_T = df_drink_combination_display.T
-                # print("Your destined pour:")
-                # print(chosen_drink_combination)
-            # else:
-                # print("No valid combinations found.")
+                    df_drink_combination_display = pd.DataFrame(drink_combination_display, index=[0])
+                    df_drink_combination_display_T = df_drink_combination_display.T
+                    # print("Your destined pour:")
+                    # print(chosen_drink_combination)
+                # else:
+                    # print("No valid combinations found.")
 
-                st.markdown(f"""
-                <div style='font-size:20px; font-weight:bold;'>
-                Formula_of_the_drink
-                </div>
-                """, unsafe_allow_html=True) # [store_name] 暫時取消
-
-                st.dataframe(
-                    df_drink_combination_display_T, 
-                    # hide_index=True,
-                )
-
-                # ------
-                st.markdown(
-                ":green-badge[:material/check: Success]"
-                )
-                
-                col_price, col_calories = st.columns(2) # 這邊的內容可以考慮改用st.metric呈現
-
-                with col_price:
-                    # 這邊之後要加上產出飲料的價位
                     st.markdown(f"""
-                    <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
-                    <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_price} </p>
-                    """, unsafe_allow_html=True
+                    <div style='font-size:20px; font-weight:bold;'>
+                    Formula_of_the_drink
+                    </div>
+                    """, unsafe_allow_html=True) # [store_name] 暫時取消
+
+                    st.dataframe(
+                        df_drink_combination_display_T, 
+                        # hide_index=True,
                     )
 
-                with col_calories:
-                    # 這邊之後要加上產出飲料的熱量
-                    st.markdown(f"""
-                    <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
-                    <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
-                    """, unsafe_allow_html=True
+                    # ------
+                    st.markdown(
+                    ":green-badge[:material/check: Success]"
                     )
+                    
+                    col_price, col_calories = st.columns(2) # 這邊的內容可以考慮改用st.metric呈現
+
+                    with col_price:
+                        # 這邊之後要加上產出飲料的價位
+                        st.markdown(f"""
+                        <p style='margin-bottom: 2px; font-size:16px;'> 💸 Price </p>
+                        <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_price} </p>
+                        """, unsafe_allow_html=True
+                        )
+
+                    with col_calories:
+                        # 這邊之後要加上產出飲料的熱量
+                        st.markdown(f"""
+                        <p style='margin-bottom: 2px; font-size:16px;'> 🔥 Calories </p>
+                        <p style='margin-bottom: 2px; font-size:24px; font-weight:bold;'> {chosen_drink_calories} </p>
+                        """, unsafe_allow_html=True
+                        )
                 
