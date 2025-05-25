@@ -13,14 +13,14 @@ st.header("Select the generator mode you want!")
 # 因此在遇到有連貫性的事件時，我們需要用st.session_state紀錄並更新狀態 
 
 # 重置三種關於模式客製化的變數和st.session_state # 預設為不客製化
-option_calories = 'NO' # 
 if 'calories_customized' not in st.session_state:
+    option_calories = 'NO' 
     st.session_state['calories_customized'] = 'NO'
-option_price = 'NO'
 if 'price_customized' not in st.session_state:
+    option_price = 'NO'
     st.session_state['price_customized'] = 'NO'
-option_ingredient = 'NO'
 if 'ingredient_customized' not in st.session_state:
+    option_ingredient = 'NO'
     st.session_state['ingredient_customized'] = 'NO'
 
 # 重置calories相關的變數和st.session_state (slider/type)
@@ -64,20 +64,25 @@ if 'selected_texture_display' not in st.session_state:
 if 'random_texture' not in st.session_state: 
     st.session_state['random_texture'] = "不限" # -> 相當於沒有限制，由生成器隨機；"無"代表的是希望飲料的texture是"無"屬性的
 
+invalid_texture = "" # default為""，表示沒有按過檢查button，後續再做判斷
 if 'invalid_texture' not in st.session_state:
-    st.session_state['invalid_texture'] = False # default為通過invalid_texture檢查
+    st.session_state['invalid_texture'] = "" # default為""，表示沒有按過檢查button
 
-full_random = True # 因default為full random，所以設定為True
+full_random = False # default為 False，後續再做判斷
 if 'full_random' not in st.session_state:
-    st.session_state['full_random'] = True
+    st.session_state['full_random'] = False
 
 submitted_check_status = False # default為沒有按下按鈕 (full random的狀況另外處理)
 if 'submitted_check_status' not in st.session_state: 
     st.session_state['submitted_check_status'] = False # default為沒有按下按鈕 (full random的狀況另外處理)
 
+check_reminder_status = "NO"
 if 'check_reminder_status' not in st.session_state: 
-    st.session_state['check_reminder_status'] = "" # default為""，代表沒有按過按鈕 (通過的代號名稱會有sucess字樣)
+    st.session_state['check_reminder_status'] = "NO" # default為""，代表沒有按過按鈕 (通過的代號名稱會有sucess字樣)
 
+generator_section = False
+if 'generator_section' not in st.session_state:
+    st.session_state['generator_section'] = False
 
 # def用來處理calories功能的開關的function
 def calories_on_change(): 
@@ -142,7 +147,7 @@ else:
 
 
 # 以markdown搭配badge顯示目前選擇的模式
-if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO':
+if st.session_state['calories_customized'] == 'NO' and st.session_state['price_customized'] == 'NO' and st.session_state['ingredient_customized'] == 'NO':
     st.markdown("✔️ You selected: :violet-badge[Random generator]")
     full_random = True
     st.session_state['full_random'] = full_random
@@ -259,10 +264,7 @@ def update_taste_selection(): # 設定更新taste的session_state
 def update_texture_selection(): # 設定更新texture的session_state
     st.session_state['selected_texture'] = st.session_state['temp_texture_selection']
 
-def update_check_button():
-    st.session_state['check_combination_status'] = True
-
-# 各項目的選項 ["Topping", "Taste", "Texture"]
+# Ingredient中可以客製化的項目 ["Topping", "Taste", "Texture"]
 # topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]
 taste = ["清爽回甘 Refreshing & Sweet Tea Flavor", "醇濃茶香 Mellow Tea Flavor", "酸 Sour", "甜 Sweet", "酸甜 Sweet & Sour", "奶香 Milky Flavor",]
 texture = ["果粒 Fruitiness", "濃厚 Thick", "嚼感 Chewiness",]
@@ -276,6 +278,8 @@ if option_ingredient == 'NO':
     st.session_state['random_texture'] = random_texture
     invalid_texture = False
     st.session_state['invalid_texture'] = invalid_texture
+    submitted_check_status = False
+    st.session_state['submitted_check_status'] = submitted_check_status
     check_reminder_status = "success_3" # -> 視為texture全選的狀況 
     st.session_state['check_reminder_status'] = check_reminder_status
 
@@ -312,7 +316,9 @@ if option_ingredient != 'NO':
         st.session_state['random_texture'] = random_texture
         invalid_texture = False
         st.session_state['invalid_texture'] = invalid_texture
-        check_reminder_status = "success_3" # -> 視為texture全選的狀況 
+        submitted_check_status = False
+        st.session_state['submitted_check_status'] = submitted_check_status
+        check_reminder_status = "success_3" # 視為texture全選的狀況 
         st.session_state['check_reminder_status'] = check_reminder_status
 
 # 加料 Topping
@@ -367,6 +373,7 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
             taste, 
             selection_mode="multi",
             key="temp_taste_selection",
+            on_change=update_taste_selection, 
             label_visibility = "collapsed",
             )
         
@@ -410,6 +417,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             texture, 
             selection_mode="multi",
             key="temp_texture_selection", 
+            on_change=update_texture_selection, 
             label_visibility = "collapsed", 
             )
     
@@ -423,7 +431,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
         random_texture = ""
         invalid_texture = False
         selected_texture_display = ""
-        check_reminder_status = ""
+        check_reminder_status = "NO"
 
         if random_topping_number==0 and selected_texture in ["果粒 Fruitiness", "嚼感 Chewiness"]:
             invalid_texture = True
@@ -476,7 +484,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
             st.session_state['check_reminder_status'] = check_reminder_status
 
         with col_check_reminder:
-            if st.session_state['check_reminder_status']=="": # 還沒有按過check的時候顯示的字樣
+            if st.session_state['check_reminder_status']=="NO": # 還沒有按過check的時候顯示的字樣
                 st.markdown("👈 Please click the check button after the selection is complete.")
             if st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3", ]: # 如果texture檢查通過，則顯示這則訊息
                 st.markdown("🆗 Pass! This combination can be used. ")
@@ -484,7 +492,7 @@ if option_ingredient != 'NO' and "Texture" in selected_type:
                 st.markdown("🚨 Please ensure that your selection is valid. ")
         
     with st.container():
-        if st.session_state['check_reminder_status'] != "" and st.session_state['submitted_check_status'] == True:
+        if st.session_state['check_reminder_status'] != "NO" and st.session_state['submitted_check_status'] == True:
             st.markdown(
                 """
                 <div style="margin-top: 0px; margin-bottom: 4px; border-left: 0.3rem solid #b19cd9; padding: 1rem; background-color: #f5f0ff; border-radius: 0.5rem; ">
@@ -617,12 +625,13 @@ df_topping = df_topping.reset_index(drop=True)
 df_side = df[df['Type'] == '副飲']
 df_side = df_side.reset_index(drop=True)
 
+if calorie_target == '無':
+    calorie_target = 2147483647
 if price_target == '無':
     price_target = 2147483647
 if topping_num == '無':
     topping_num = 2147483647
-if calorie_target == '無':
-    calorie_target = 2147483647
+
 
 topping_set = [] # 因設計難度較高，暫不設計可以讓使用者自訂topping種類的功能，所以設定為empty list
 df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
@@ -643,7 +652,43 @@ if 'drink_combination' not in st.session_state:
 # if 'add_to_fav' not in st.session_state:
 #     st.session_state['add_to_fav'] = False
 
-if st.session_state['full_random'] == "True" or st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]: # 前面檢查通過之後 才能讓使用者使用generator
+generator_section = False
+st.session_state['generator_section'] = generator_section
+if check_reminder_status == "NO": # 獨立處理按過YES，再按NO的話，st.session_state['check_reminder_status']沒有跟check_reminder_status同步的狀況
+    st.session_state['check_reminder_status'] = check_reminder_status
+
+if st.session_state['full_random']:
+    generator_section = True
+    st.session_state['generator_section'] = generator_section
+elif st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]:
+    generator_section = True
+    st.session_state['generator_section'] = generator_section
+elif st.session_state['check_reminder_status'] == "NO":
+    generator_section = False
+    st.session_state['generator_section'] = generator_section
+elif st.session_state['check_reminder_status'] == "warning":
+    generator_section = False
+    st.session_state['generator_section'] = generator_section
+else:
+    generator_section = False
+    st.session_state['generator_section'] = generator_section
+
+# --- [start] generator_section的debug code ---
+# st.write('full_random = ', full_random)
+# st.write('submitted_check_status = ', submitted_check_status)
+# st.write('check_reminder_status = ', check_reminder_status)
+# st.write('generator_section = ', generator_section)
+# st.write(st.session_state['generator_section'])
+
+# st.write('full_random = ', st.session_state['full_random'])
+# st.write('check_reminder_status = ', st.session_state['check_reminder_status'])
+# st.write('type(check_reminder_status) = ', type(st.session_state['check_reminder_status']))
+
+# --- [end] generator_section的debug code ---
+
+# full_random == True 或 前面invalid_texture檢查通過之後，才能讓使用者使用generator
+generator_section = st.session_state['generator_section']
+if generator_section == True:
     st.divider() 
     with st.container():
         # st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
@@ -653,12 +698,24 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
         </h1>
         """, unsafe_allow_html=True)
         
+        # def等下要使用的get_difference function
+        def get_difference(value, target):
+            if target == 2147483647: # 如果target是沒有指定的狀態，target == 2147483647
+                return 0 # target沒有指定的狀況下，不用計算差值(difference)
+            else:
+                return abs(value - int(target))
+            
+        # calorie_difference = get_difference(total_calories, calorie_target)
+        # price_difference = get_difference(total_price, price_target)
+        # difference_between_goals_and_results = calorie_difference + price_difference
+
         # 將generate功能設定為需要
         with st.form('generator_form', clear_on_submit=False, border=False,):
             submitted_generator = st.form_submit_button("🎲 Roll the dice! ") 
 
-            if submitted_generator:
+            if submitted_generator: # 如果按下按鈕開始generate
                 # ----- [start] Code completed by withdrawn member Mr. Chan -----
+                # 基於Mr. Chan的code，額外追加了挑選combination的計算
                 drink_conbination = []
                 df_filtered = df_topping[~df_topping['Name'].isin(topping_set)].reset_index(drop=True)
                 for i in range(len(df_drink)):
@@ -683,13 +740,21 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                                     (drink['Texture'] == texture_preference or
                                     (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo))
                                     or texture_preference=='不限')
-                                    ): drink_conbination.append({
+                                    ): 
+                                        calorie_difference = get_difference(total_calories, calorie_target)
+                                        price_difference = get_difference(total_price, price_target)
+                                        difference_between_goals_and_results = calorie_difference + price_difference
+                                        
+                                        drink_conbination.append({
                                         'Drink': drink['Name'],
                                         'Size' : '中杯',
                                         'Topping': topping_names,
                                         'Side': '無',
                                         'Total Calories': total_calories,
-                                        'Total Price': total_price
+                                        'Total Price': total_price,
+                                        'Calorie Difference': calorie_difference,
+                                        'Price Difference': price_difference,
+                                        'Difference Score': difference_between_goals_and_results,
                                     })
                             else:
                                 total_calories = int(drink['Cal_med']) + topping_calories + int(side['Cal_med'])
@@ -705,13 +770,21 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                                 (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
                                 side['Texture'] == texture_preference or
                                 texture_preference == '不限')
-                            ): drink_conbination.append({
+                            ): 
+                                calorie_difference = get_difference(total_calories, calorie_target)
+                                price_difference = get_difference(total_price, price_target)
+                                difference_between_goals_and_results = calorie_difference + price_difference                                
+                                
+                                drink_conbination.append({
                                     'Drink': drink['Name'],
                                     'Size' : '中杯',
                                     'Topping': topping_names,
                                     'Side': side['Name'],
                                     'Total Calories': total_calories,
-                                    'Total Price': total_price
+                                    'Total Price': total_price,
+                                    'Calorie Difference': calorie_difference,
+                                    'Price Difference': price_difference,
+                                    'Difference Score': difference_between_goals_and_results,                                    
                                 })
 
                 for i in range(len(df_drink)):
@@ -735,13 +808,21 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                                     (drink['Texture'] == texture_preference or
                                     (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
                                     texture_preference == '不限')
-                                ): drink_conbination.append({
+                                ): 
+                                        calorie_difference = get_difference(total_calories, calorie_target)
+                                        price_difference = get_difference(total_price, price_target)
+                                        difference_between_goals_and_results = calorie_difference + price_difference                                        
+                                        
+                                        drink_conbination.append({
                                         'Drink': drink['Name'],
                                         'Size' : '大杯',
                                         'Topping': topping_names,
                                         'Side': '無',
                                         'Total Calories': total_calories,
-                                        'Total Price': total_price
+                                        'Total Price': total_price,
+                                        'Calorie Difference': calorie_difference,
+                                        'Price Difference': price_difference,
+                                        'Difference Score': difference_between_goals_and_results,                                        
                                     })
                         else:
                             total_calories = int(drink['Cal_big']) + topping_calories + int(side['Cal_big'])
@@ -757,18 +838,33 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                             (any(str(df_topping.iloc[t]['Texture']).strip() == texture_preference for t in combo)) or
                             side['Texture'] == texture_preference or
                             texture_preference == '不限')
-                        ): drink_conbination.append({
+                        ): 
+                            calorie_difference = get_difference(total_calories, calorie_target)
+                            price_difference = get_difference(total_price, price_target)
+                            difference_between_goals_and_results = calorie_difference + price_difference                            
+                            
+                            drink_conbination.append({
                                 'Drink': drink['Name'],
                                 'Size' : '大杯',
                                 'Topping': topping_names,
                                 'Side': side['Name'],
                                 'Total Calories': total_calories,
-                                'Total Price': total_price
+                                'Total Price': total_price,
+                                'Calorie Difference': calorie_difference,
+                                'Price Difference': price_difference,
+                                'Difference Score': difference_between_goals_and_results,                                
                             })
 
                 # ----- [end] Code completed by withdrawn member Mr. Chan -----
                 
-                st.write(drink_conbination) # 用來檢查generator是否worked
+                st.write(drink_conbination) # 用來檢查generator是否worked -> 完成後須註解掉
+
+                # 將符合初步篩選條件的組合放入pandas的dataframe中
+                df_drink_combination = pd.DataFrame(drink_conbination)
+                # 按 Difference Score 由小到大排序
+                df_drink_combination_sorted = df_drink_combination.sort_values('Difference Score', ascending=True).reset_index(drop=True)
+                # 計算每一組與第一組(第零列)的Difference Score的差值
+                df_drink_combination_sorted['Difference Score from Combination 0'] = df_drink_combination_sorted['Difference Score'] - df_drink_combination_sorted.iloc[0]['Difference Score']
 
                 if drink_conbination == []: # 如果生成不出組合，顯示warning
                     st.markdown(
@@ -776,13 +872,51 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                         <div style="border-left: 0.3rem solid orange; padding: 1rem; background-color: #fff7e6; border-radius: 0.5rem;">
                             <strong>⚠️ Warning: </strong><br><br>
                             No valid combinations found.
-                        </div>
+                        </div>ination_sorted.iloc[0].to_dict()
                         """,
                         unsafe_allow_html=True
                     )        
-                                
+
                 if drink_conbination != []: # 如果有正常生成出結果 -> 顯示生成的結果
-                    chosen_drink_combination = random.choice(drink_conbination)
+                    chosen_drink_combination = dict() # 將chosen_drink_combination設為empty dict
+                    df_waiting_list = pd.DataFrame() # 將df_waiting_list設為empty pd.dataframe
+                    df_waiting_list2 = pd.DataFrame() # 將df_waiting_list2設為empty pd.dataframe
+
+                    if len(df_drink_combination_sorted) == 1: # 如果符合條件的組合恰有1組
+                        # 將符合條件的組合轉換為dict，並放入chosen_drink_combination
+                        chosen_drink_combination = df_drink_combination_sorted.iloc[0].to_dict() 
+
+                    if len(df_drink_combination_sorted) > 1: # 如果符合條件的組合不只1組
+                        # diff1是指第2列的資料的'Difference Score from Combination 0'對應的值
+                        diff1 = df_drink_combination_sorted.iloc[1]['Difference Score from Combination 0']
+                        if len(df_drink_combination_sorted) > 4: # 如果符合條件的組合至少有5組，計算diff4
+                            # diff4是指第5列的資料的'Difference Score from Combination 0'對應的值
+                            diff4 = df_drink_combination_sorted.iloc[4]['Difference Score from Combination 0']
+                        
+                        if diff1 > 30: # 如果第2組的'Difference Score from Combination 0'對應的值大於 30 -> 選擇第1組(第0列)的組合作為chosen_drink_combination
+                            chosen_drink_combination = df_drink_combination_sorted.iloc[0].to_dict()
+                            
+                        else:  # 如果第2組的'Difference Score from Combination 0'對應的值(diff1)小於等於 30
+                            # 先找出所有差值('Difference Score from Combination 0'對應的值)在 31 以下的組合
+                            df_waiting_list = df_drink_combination_sorted[df_drink_combination_sorted['Difference Score from Combination 0'] < 31]
+                            if df_waiting_list.shape[0] >= 5 and (diff4 == 0): 
+                                # 如果有至少5組分數一樣，，將'Difference Score from Combination 0'對應的值 < 1 的組別收集到df_waiting_list2，並從這些組裡隨機挑1組
+                                df_waiting_list2 = df_drink_combination_sorted[df_drink_combination_sorted['Difference Score from Combination 0'] < 1]
+                                candidates_length = len(df_waiting_list2)
+                                random_candidate_loc = random.randint(0, candidates_length-1)
+                                chosen_drink_combination = df_waiting_list2.iloc[random_candidate_loc].to_dict()
+                                # top_candidates = df_waiting_list[df_waiting_list['Difference Score from Combination 0'] == 0]
+                                # chosen_drink_combination = top_candidates.sample(1).iloc[0].to_dict()
+                            elif df_waiting_list.shape[0] >= 5 and (diff4 > 0):
+                                # 如果條件的組別至少有五組，但diff4 != 0，則從前5組裡面隨機挑1組
+                                random_candidate_loc = random.randint(0, 4)
+                                chosen_drink_combination = df_waiting_list.iloc[random_candidate_loc].to_dict()
+                            else:
+                                # 如果符合條件的組別大於1組，小於5組，則從這些組別中隨機挑1組
+                                candidates_length = len(df_waiting_list)
+                                random_candidate_loc = random.randint(0, candidates_length-1)
+                                chosen_drink_combination = df_waiting_list.iloc[random_candidate_loc].to_dict()
+
                     st.session_state['drink_combination'] = chosen_drink_combination
                     chosen_drink_topping = ""
                     converted_topping_name = []
@@ -790,19 +924,20 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                     chosen_drink_price = chosen_drink_combination['Total Price']
                     chosen_drink_calories = chosen_drink_combination['Total Calories']
 
+
+                    # 將chosen_drink_combination的topping名稱改名為中英文雙語版本
                     chosen_drink_topping = chosen_drink_combination['Topping']
                     topping = ["檸檬 Lemon", "香橙 Orange", "甘蔗 Sugar cane", "春梅 Green Plum", "柚子 Yuzu/Pomelo", "珍珠 Golden Bubble/Pearl", "焙烏龍茶凍 Oolong Tea Jelly"]    
                     topping_name_generator = ['檸檬', '香橙', '甘蔗', '春梅', '柚子', '珍珠', '焙烏龍茶凍']    
                     topping_name_dict_reverse = dict(zip(topping_name_generator , topping))
                     for i in chosen_drink_topping:
-                        if i in topping_name_dict_reverse:
+                        if i in topping_name_dict_reverse: # 將要置換的新名稱放入converted_topping_name
                             converted_topping_name.append(topping_name_dict_reverse[i])
                         else:
                             converted_topping_name.append()
-                    
-                    chosen_drink_topping = converted_topping_name
+                    chosen_drink_topping = converted_topping_name #將chosen_drink_topping的內容換成converted_topping_name的內容
 
-
+                    # 設定要display給使用者看的chosen_drink_combination的topping
                     if len(chosen_drink_combination['Topping']) > 0:
                         for i in range((len(chosen_drink_combination['Topping'])-1)):
                             chosen_drink_topping_display = chosen_drink_topping_display + str(chosen_drink_topping[i]) + ', '
@@ -810,6 +945,7 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                     if len(chosen_drink_combination['Topping']) == 0:
                         chosen_drink_topping = 'None'
 
+                    # 將生成的飲料組合裝成一個dict
                     drink_combination_display = dict()
                     drink_combination_display = {
                         'Random Items': 'Content', 
@@ -819,12 +955,11 @@ if st.session_state['full_random'] == "True" or st.session_state['check_reminder
                         'Side': chosen_drink_combination['Side'],
                     }
 
+                    # 將drink_combination_display改以pd.dataframe的形式，儲存在df_drink_combination_display 
                     df_drink_combination_display = pd.DataFrame(drink_combination_display, index=[0])
-                    df_drink_combination_display_T = df_drink_combination_display.T
-                    # print("Your destined pour:")
-                    # print(chosen_drink_combination)
-                # else:
-                    # print("No valid combinations found.")
+                    
+                    # 將df_drink_combination_display行列互換，儲存於df_drink_combination_display_T
+                    df_drink_combination_display_T = df_drink_combination_display.T 
 
                     st.markdown(f"""
                     <div style='font-size:20px; font-weight:bold;'>
