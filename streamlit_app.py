@@ -67,9 +67,13 @@ if 'random_texture' not in st.session_state:
 if 'invalid_texture' not in st.session_state:
     st.session_state['invalid_texture'] = False # default為通過invalid_texture檢查
 
-submitted_check_status = True # default為有按下按鈕（因為模式為完全random時，也要視同已經檢查過invalid_texture，允許進行下一步的generate）
+full_random = True # 因default為full random，所以設定為True
+if 'full_random' not in st.session_state:
+    st.session_state['full_random'] = True
+
+submitted_check_status = False # default為沒有按下按鈕 (full random的狀況另外處理)
 if 'submitted_check_status' not in st.session_state: 
-    st.session_state['submitted_check_status'] = True # default為有按下按鈕
+    st.session_state['submitted_check_status'] = False # default為沒有按下按鈕 (full random的狀況另外處理)
 
 if 'check_reminder_status' not in st.session_state: 
     st.session_state['check_reminder_status'] = "" # default為""，代表沒有按過按鈕 (通過的代號名稱會有sucess字樣)
@@ -140,9 +144,12 @@ else:
 # 以markdown搭配badge顯示目前選擇的模式
 if option_calories == 'NO' and option_price == 'NO' and option_ingredient == 'NO':
     st.markdown("✔️ You selected: :violet-badge[Random generator]")
+    full_random = True
+    st.session_state['full_random'] = full_random
 else: 
     st.markdown("✔️ You selected: " + badge_calories + badge_price + badge_ingredient)
-
+    full_random = False
+    st.session_state['full_random'] = full_random
 
 # --- option_calories 的區塊 ---
 # calories_value代表的是最終數值，calories_slider_value與calories_number_value代表的是從不同種輸入模式輸入的數值
@@ -387,10 +394,10 @@ if option_ingredient != 'NO' and "Taste" in selected_type:
 
 # 口感 Texture
 if option_ingredient != 'NO' and "Texture" in selected_type:
-    submitted_check_status = False
-    st.session_state['submitted_check_status'] = False
-    check_reminder_status = ""
-    st.session_state['check_reminder_status'] = check_reminder_status
+    # submitted_check_status = False
+    # st.session_state['submitted_check_status'] = False
+    # check_reminder_status = ""
+    # st.session_state['check_reminder_status'] = check_reminder_status
 
     with st.container(border=True,):
         st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'> ③ Select the texture of the drink you prefer</p>", unsafe_allow_html=True)
@@ -636,7 +643,7 @@ if 'drink_combination' not in st.session_state:
 # if 'add_to_fav' not in st.session_state:
 #     st.session_state['add_to_fav'] = False
 
-if st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]: # 前面檢查通過之後 才能讓使用者使用generator
+if st.session_state['full_random'] == "True" or st.session_state['check_reminder_status'] in ["success_0", "success_12", "success_3"]: # 前面檢查通過之後 才能讓使用者使用generator
     st.divider() 
     with st.container():
         # st.markdown("<p style='margin-bottom: 0px; font-size:16px; color:DarkSlateBlue; font-weight:bold;'>下方皆為舊版code 正在改版</p>", unsafe_allow_html=True)
