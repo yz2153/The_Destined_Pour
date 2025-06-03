@@ -1,19 +1,8 @@
-# 🎈 Blank app template
+# 🎲 The Destined Pour
 
-A simple Streamlit app template for you to modify!
+A User-Friendly Random Drink Generator!
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+[![Open in Streamlit]](https://the-destined-pour.streamlit.app)
 
-### How to run it on your own machine
+Notes: We upload everything to GitHub, then sync it to Streamlit Cloud, reboot the app, and the updated version runs online. You can connect to our app by the link above.
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
